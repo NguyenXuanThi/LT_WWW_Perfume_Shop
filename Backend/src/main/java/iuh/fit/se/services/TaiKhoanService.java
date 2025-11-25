@@ -1,0 +1,11 @@
+package iuh.fit.se.services;
+
+import iuh.fit.se.dtos.responses.TaiKhoanResponse;
+import iuh.fit.se.entities.TaiKhoan;
+
+public interface TaiKhoanService {
+    TaiKhoan findByIdRaw(int id);
+    TaiKhoan findByEmailRaw(String email);
+    TaiKhoanResponse findById(int id);
+    TaiKhoanResponse findByEmail(String email);
+}
