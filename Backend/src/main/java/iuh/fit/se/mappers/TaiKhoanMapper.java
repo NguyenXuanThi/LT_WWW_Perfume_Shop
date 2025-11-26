@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface TaiKhoanMapper {
+    @Mapping(target = "active", constant = "true")
     TaiKhoan toTaiKhoan(TaiKhoanCreateRequest request);
     @Mapping(target = "id", ignore = true)
     void updateTaiKhoan(TaiKhoanUpdateRequest request, @MappingTarget TaiKhoan taiKhoan);
