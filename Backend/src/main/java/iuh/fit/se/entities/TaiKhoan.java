@@ -21,7 +21,7 @@ public class TaiKhoan {
     @Column(nullable = false)
     private String hoTen;
     private LocalDate ngaySinh;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 10)
     private String soDienThoai;
     @Column(nullable = false, unique = true)
     private String email;

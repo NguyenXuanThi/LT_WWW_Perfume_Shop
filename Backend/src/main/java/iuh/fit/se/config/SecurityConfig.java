@@ -25,7 +25,6 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService;
     private final JwtDecoder jwtDecoder;
 
     @Bean

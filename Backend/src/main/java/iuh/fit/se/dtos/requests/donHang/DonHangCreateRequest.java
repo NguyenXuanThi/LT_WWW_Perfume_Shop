@@ -31,7 +31,7 @@ public class DonHangCreateRequest {
     private String ghiChu;
     @Positive(message = "Thuế VAT phải lớn hơn 0")
     private double thueVAT;
-    @PositiveOrZero(message = "Thuế VAT phải lớn hơn hoặc bằng 0")
+    @PositiveOrZero(message = "Phí vận chuyển phải lớn hơn hoặc bằng 0")
     private double phiVanChuyen;
     private int taiKhoan;
     @NotNull(message = "Chi tiết đơn hàng không được trống")
