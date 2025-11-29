@@ -22,8 +22,11 @@ public class LoaiNuocHoa {
     private TenLoai tenLoai;
     @Column(columnDefinition = "text")
     private String moTa;
+    @Column(length = 100)
     private String nongDoTinhDau;
+    @Column(length = 100)
     private String doLuuHuong;
+    @Column(length = 100)
     private String doToaHuong;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "loaiNuocHoa")
     @ToString.Exclude

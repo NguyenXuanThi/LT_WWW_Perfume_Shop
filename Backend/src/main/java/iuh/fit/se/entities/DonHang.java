@@ -35,9 +35,8 @@ public class DonHang {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('CHUA_DUOC_GIAO', 'DA_GIAO', 'DA_HUY') DEFAULT 'CHUA_DUOC_GIAO'")
     private TrangThaiDonHang trangThaiDonHang;
-    @Column(columnDefinition = "DOUBLE DEFAULT 0.1")
     private double thueVAT;
-    @Column(columnDefinition = "DOUBLE DEFAULT 0")
+    @Column(columnDefinition = "DOUBLE DEFAULT 30000")
     private double phiVanChuyen;
     @ManyToOne
     @JoinColumn(name = "taiKhoanId", nullable = false)

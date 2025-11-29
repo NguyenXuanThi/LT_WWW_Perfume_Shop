@@ -113,7 +113,7 @@ public class TestController {
     }
 
     @GetMapping("/taiKhoan/{email}")
-    @PreAuthorize("(hasRole('Admin')) or (authentication.name == #email)")
+    @PreAuthorize("(hasAuthority('Admin')) or (authentication.name == #email)")
     public TaiKhoanResponse findTaiKhoanById(@PathVariable String email) {
         return taiKhoanService.findByEmail(email);
     }
