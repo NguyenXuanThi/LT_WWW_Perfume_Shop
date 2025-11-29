@@ -1,6 +1,7 @@
 package iuh.fit.se.services;
 
 import iuh.fit.se.dtos.responses.ThongKeDoanhThuResponse;
+import iuh.fit.se.dtos.responses.ThongKeTrangThaiDonHangResponse;
 import iuh.fit.se.dtos.responses.TopSanPhamResponse;
 
 import java.time.LocalDate;
@@ -11,4 +12,6 @@ public interface ThongKeService {
     List<ThongKeDoanhThuResponse> thongKeDoanhThuTheoThang(int year);
     List<ThongKeDoanhThuResponse> thongKeDoanhThuTheoNam(int startYear, int endYear);
     List<TopSanPhamResponse> topSanPhamBanChay(int limit);
+    List<ThongKeTrangThaiDonHangResponse> thongKeTheoTrangThai();
+    List<ThongKeTrangThaiDonHangResponse> thongKeTheoTrangThaiTrongKhoang(LocalDate startDate, LocalDate endDate);
 }

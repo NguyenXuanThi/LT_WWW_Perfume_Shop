@@ -1,7 +1,9 @@
 package iuh.fit.se.services.impl;
 
 import iuh.fit.se.dtos.responses.ThongKeDoanhThuResponse;
+import iuh.fit.se.dtos.responses.ThongKeTrangThaiDonHangResponse;
 import iuh.fit.se.dtos.responses.TopSanPhamResponse;
+import iuh.fit.se.enums.TrangThaiDonHang;
 import iuh.fit.se.repositories.DonHangRepository;
 import iuh.fit.se.services.ThongKeService;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +65,30 @@ public class ThongKeServiceImpl implements ThongKeService {
                         .hinhAnh((String) row[2])
                         .soLuongBan((Long) row[3])
                         .doanhThu((Double) row[4])
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ThongKeTrangThaiDonHangResponse> thongKeTheoTrangThai() {
+        return donHangRepository.thongKeTheoTrangThai()
+                .stream()
+                .map(row -> ThongKeTrangThaiDonHangResponse.builder()
+                        .trangThai((TrangThaiDonHang) row[0])
+                        .soDonHang((Long) row[1])
+                        .tongTien((Double) row[2])
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ThongKeTrangThaiDonHangResponse> thongKeTheoTrangThaiTrongKhoang(LocalDate startDate, LocalDate endDate) {
+        return donHangRepository.thongKeTheoTrangThaiTrongKhoang(startDate, endDate)
+                .stream()
+                .map(row -> ThongKeTrangThaiDonHangResponse.builder()
+                        .trangThai((TrangThaiDonHang) row[0])
+                        .soDonHang((Long) row[1])
+                        .tongTien((Double) row[2])
                         .build())
                 .collect(Collectors.toList());
     }

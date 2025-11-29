@@ -50,4 +50,21 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
             "GROUP BY n.id, n.tenSanPham, n.hinhAnhChinh " +
             "ORDER BY soLuongBan DESC")
     List<Object[]> topSanPhamBanChay(@Param("limit") int limit);
+
+    // Thống kê theo trạng thái đơn hàng
+    @Query("SELECT d.trangThaiDonHang as trangThai, COUNT(d) as soDonHang, SUM(d.thanhTien) as tongTien " +
+            "FROM DonHang d " +
+            "GROUP BY d.trangThaiDonHang " +
+            "ORDER BY d.trangThaiDonHang")
+    List<Object[]> thongKeTheoTrangThai();
+
+    // Thống kê theo trạng thái trong khoảng thời gian
+    @Query("SELECT d.trangThaiDonHang as trangThai, COUNT(d) as soDonHang, SUM(d.thanhTien) as tongTien " +
+            "FROM DonHang d " +
+            "WHERE d.ngayDat BETWEEN :startDate AND :endDate " +
+            "GROUP BY d.trangThaiDonHang " +
+            "ORDER BY d.trangThaiDonHang")
+    List<Object[]> thongKeTheoTrangThaiTrongKhoang(@Param("startDate") LocalDate startDate,
+                                                   @Param("endDate") LocalDate endDate);
+
 }
