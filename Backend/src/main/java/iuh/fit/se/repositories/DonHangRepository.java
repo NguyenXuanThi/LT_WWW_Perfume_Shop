@@ -1,6 +1,7 @@
 package iuh.fit.se.repositories;
 
 import iuh.fit.se.entities.DonHang;
+import iuh.fit.se.enums.TrangThaiDonHang;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
+
+    // Tìm kiếm đơn hàng với các điều kiện tùy chọn
+    @Query("SELECT d FROM DonHang d WHERE " +
+            "(:trangThai IS NULL OR d.trangThaiDonHang = :trangThai) AND " +
+            "(:startDate IS NULL OR d.ngayDat >= :startDate) AND " +
+            "(:endDate IS NULL OR d.ngayDat <= :endDate) AND " +
+            "(:taiKhoanId IS NULL OR d.taiKhoan.id = :taiKhoanId) " +
+            "ORDER BY d.ngayDat DESC")
+    List<DonHang> findAllWithFilters(
+            @Param("trangThai") TrangThaiDonHang trangThai,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("taiKhoanId") Integer taiKhoanId
+    );
 
     // Thống kê doanh thu theo ngày
     @Query("SELECT d.ngayDat as label, SUM(d.thanhTien) as doanhThu, COUNT(d) as soDonHang " +
@@ -66,5 +81,4 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
             "ORDER BY d.trangThaiDonHang")
     List<Object[]> thongKeTheoTrangThaiTrongKhoang(@Param("startDate") LocalDate startDate,
                                                    @Param("endDate") LocalDate endDate);
-
 }
