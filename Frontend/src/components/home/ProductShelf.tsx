@@ -28,7 +28,6 @@ const ProductShelf = ({
 
   return (
     <section className="py-8">
-      {/* Header của section */}
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
           {label && (
@@ -43,8 +42,6 @@ const ProductShelf = ({
           Xem tất cả →
         </button>
       </div>
-
-      {/* Dãy sản phẩm scroll ngang */}
       <div className="relative">
         {/* nút trái */}
         <button
@@ -64,8 +61,6 @@ const ProductShelf = ({
             </div>
           ))}
         </div>
-
-        {/* nút phải */}
         <button
           onClick={() => scroll("right")}
           className="absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/90 p-1 shadow md:inline-flex"

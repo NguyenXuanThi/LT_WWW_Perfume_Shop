@@ -1,8 +1,12 @@
+import { BrowserRouter } from "react-router-dom";
+import Navigator from "./navigate/navigator";
 import "./App.css";
-import HomePage from "./page/home/HomePage";
-
 function App() {
-  return <HomePage />;
+  return (
+    <BrowserRouter>
+      <Navigator />
+    </BrowserRouter>
+  );
 }
 
 export default App;

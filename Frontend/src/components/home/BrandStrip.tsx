@@ -17,7 +17,6 @@ const BrandStrip = () => {
   return (
     <section className="py-10">
       <div className="grid gap-6 md:grid-cols-[1.4fr,1.1fr] md:items-stretch">
-        {/* Banner hình bên trái */}
         <div className="overflow-hidden rounded-2xl border border-slate-200">
           <img
             src="https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg"
@@ -25,8 +24,6 @@ const BrandStrip = () => {
             className="h-full w-full object-cover"
           />
         </div>
-
-        {/* Logo brand bên phải */}
         <div className="grid h-full grid-cols-3 gap-4 bg-white px-4 py-6 text-xs text-slate-700 shadow-sm sm:grid-cols-4">
           {brands.map((b) => (
             <div
