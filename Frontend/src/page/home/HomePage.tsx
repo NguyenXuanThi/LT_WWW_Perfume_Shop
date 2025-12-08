@@ -7,27 +7,30 @@ import type { ProductCardProps } from "../../components/product/ProductCard";
 
 const newArrivals: ProductCardProps[] = [
   {
+    id: 21,
     name: "JEAN PAUL GAULTIER SCANDAL BY NIGHT EAU DE PARFUM",
     brand: "Jean Paul Gaultier",
-    price: 3690000,
+    price: 3_690_000,
     volume: "75ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
     badge: "NEW",
   },
   {
+    id: 22,
     name: "VALENTINO DONNA BORN IN ROMA",
     brand: "Valentino",
-    price: 3150000,
+    price: 3_150_000,
     volume: "50ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
     badge: "NEW",
   },
   {
+    id: 23,
     name: "GUCCI BLOOM EAU DE PARFUM",
     brand: "Gucci",
-    price: 2950000,
+    price: 2_950_000,
     volume: "50ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
@@ -36,27 +39,30 @@ const newArrivals: ProductCardProps[] = [
 
 const bestSellers: ProductCardProps[] = [
   {
+    id: 1,
     name: "CAROLINA HERRERA GOOD GIRL",
     brand: "Carolina Herrera",
-    price: 2890000,
+    price: 2_890_000,
     volume: "80ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
     badge: "BEST",
   },
   {
+    id: 7,
     name: "LANCOME LA VIE EST BELLE",
     brand: "Lancôme",
-    price: 2790000,
+    price: 2_790_000,
     volume: "75ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
     badge: "HOT",
   },
   {
+    id: 3,
     name: "DIOR SAUVAGE EAU DE PARFUM",
     brand: "Dior",
-    price: 3250000,
+    price: 3_250_000,
     volume: "60ml",
     imageUrl:
       "https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg",
@@ -80,6 +86,7 @@ const HomePage = () => {
           label="New Arrivals"
           subtitle="Những mùi hương vừa cập bến cửa hàng."
           products={newArrivals}
+          seeAllLink="/nuoc-hoa-nam" // hoặc 1 route khác nếu mày tách category
         />
 
         <ProductShelf
@@ -87,14 +94,8 @@ const HomePage = () => {
           label="Bestsellers"
           subtitle="Top nước hoa được yêu thích nhất."
           products={bestSellers}
+          seeAllLink="/nuoc-hoa-nam"
         />
-
-        {/* Sau này bạn có thể thêm tiếp:
-          - Mini & Travel Size
-          - Giftset
-          - Bodycare & Homecare
-          - TV / Magazine (card hình ngang)
-        */}
       </main>
 
       <Footer />

@@ -1,6 +1,7 @@
 // src/components/product/ProductCard.tsx
 
 export type ProductCardProps = {
+  id?: number;
   name: string;
   brand: string;
   price: number;
