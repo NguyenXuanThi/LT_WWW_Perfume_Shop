@@ -1,4 +1,4 @@
-import type { UserError, User } from "./User";
+import type { UserError, User, UserAdminOnly } from "./User";
 
 export interface ApiResponse<T> {
     timestamp: string;
@@ -11,4 +11,9 @@ export interface ApiResponse<T> {
 export interface LoginRespone {
     token: string;
     user: User;
+}
+
+export interface PageUser {
+    content: UserAdminOnly[];
+    totalPages: number;
 }

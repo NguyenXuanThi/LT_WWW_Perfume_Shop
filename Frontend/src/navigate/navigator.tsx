@@ -8,6 +8,7 @@ import RegistrationPage from "@/page/auth/RegistrationPage";
 import AdminAuthenticate from "@/page/admin/AdminAuthenticate";
 import AdminDashboard from "@/page/admin/AdminDashboard";
 import AccountAuthenticate from "@/page/account/AccountAuthenticate";
+import AdminUserManagement from "@/page/admin/AdminUserManagement";
 
 const Navigator = () => {
   return (
@@ -19,6 +20,7 @@ const Navigator = () => {
       <Route path="/register" element={<RegistrationPage />} />
       <Route element={<AdminAuthenticate/>}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/manage" element={<AdminUserManagement />} />
       </Route>
       <Route element={<AccountAuthenticate/>}>
         <Route path="/account" element={<AccountPage />} />

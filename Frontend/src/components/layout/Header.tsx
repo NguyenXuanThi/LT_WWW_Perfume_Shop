@@ -59,6 +59,15 @@ const Header = () => {
             {
               (user && user.vaiTro === "Admin" ) ?
                 <Link
+                  to="/admin/manage"
+                  className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
+                >
+                  Quản lý người dùng
+                </Link> : ""
+            }
+            {
+              (user && user.vaiTro === "Admin" ) ?
+                <Link
                   to="/admin/dashboard"
                   className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
                 >
