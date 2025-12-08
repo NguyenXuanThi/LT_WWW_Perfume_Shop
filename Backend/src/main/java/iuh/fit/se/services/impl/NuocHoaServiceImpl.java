@@ -72,18 +72,12 @@ public class NuocHoaServiceImpl implements NuocHoaService {
 
         // Map NuocHoa
         NuocHoa nuocHoa = nuocHoaMapper.toNuocHoa(request);
-        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
+//        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
 
-        // Save NuocHoa first to get ID
-        nuocHoa = nuocHoaRepository.save(nuocHoa);
-
-        // Map và save ChiTietNuocHoa
         ChiTietNuocHoa chiTietNuocHoa = chiTietNuocHoaMapper.toChiTietNuocHoa(request.getChiTietNuocHoa());
-        chiTietNuocHoa.setNuocHoaId(nuocHoa.getId());
         chiTietNuocHoa.setNuocHoa(nuocHoa);
-        chiTietNuocHoa = chiTietNuocHoaRepository.save(chiTietNuocHoa);
-
         nuocHoa.setChiTietNuocHoa(chiTietNuocHoa);
+        nuocHoa = nuocHoaRepository.save(nuocHoa);
 
         return nuocHoaMapper.toNuocHoaResponse(nuocHoa);
     }
@@ -106,36 +100,37 @@ public class NuocHoaServiceImpl implements NuocHoaService {
 
         // Update NuocHoa
         nuocHoaMapper.updateNuocHoa(request, nuocHoa);
-        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
+//        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
 
         // Update ChiTietNuocHoa
         ChiTietNuocHoa chiTietNuocHoa = nuocHoa.getChiTietNuocHoa();
-        if (chiTietNuocHoa == null) {
-            // Nếu chưa có ChiTietNuocHoa, tạo mới
-            chiTietNuocHoa = chiTietNuocHoaMapper.toChiTietNuocHoa(request.getChiTietNuocHoa());
-            chiTietNuocHoa.setNuocHoaId(nuocHoa.getId());
-            chiTietNuocHoa.setNuocHoa(nuocHoa);
-        } else {
-            // Nếu đã có, update từng field
-            if (request.getChiTietNuocHoa().getHinhAnhChiTiet() != null) {
-                chiTietNuocHoa.setHinhAnhChiTiet(request.getChiTietNuocHoa().getHinhAnhChiTiet());
-            }
-            if (request.getChiTietNuocHoa().getXuatXu() != null) {
-                chiTietNuocHoa.setXuatXu(request.getChiTietNuocHoa().getXuatXu());
-            }
-            if (request.getChiTietNuocHoa().getNamPhatHanh() > 0) {
-                chiTietNuocHoa.setNamPhatHanh(request.getChiTietNuocHoa().getNamPhatHanh());
-            }
-            if (request.getChiTietNuocHoa().getNhomHuong() != null) {
-                chiTietNuocHoa.setNhomHuong(request.getChiTietNuocHoa().getNhomHuong());
-            }
-            if (request.getChiTietNuocHoa().getPhongCachMuiHuong() != null) {
-                chiTietNuocHoa.setPhongCachMuiHuong(request.getChiTietNuocHoa().getPhongCachMuiHuong());
-            }
-            if (request.getChiTietNuocHoa().getMoTa() != null) {
-                chiTietNuocHoa.setMoTa(request.getChiTietNuocHoa().getMoTa());
-            }
-        }
+        chiTietNuocHoaMapper.updateChiTietNuocHoa(request.getChiTietNuocHoa(), chiTietNuocHoa);
+//        if (chiTietNuocHoa == null) {
+//            // Nếu chưa có ChiTietNuocHoa, tạo mới
+//            chiTietNuocHoa = chiTietNuocHoaMapper.toChiTietNuocHoa(request.getChiTietNuocHoa());
+//            chiTietNuocHoa.setNuocHoaId(nuocHoa.getId());
+//            chiTietNuocHoa.setNuocHoa(nuocHoa);
+//        } else {
+//            // Nếu đã có, update từng field
+//            if (request.getChiTietNuocHoa().getHinhAnhChiTiet() != null) {
+//                chiTietNuocHoa.setHinhAnhChiTiet(request.getChiTietNuocHoa().getHinhAnhChiTiet());
+//            }
+//            if (request.getChiTietNuocHoa().getXuatXu() != null) {
+//                chiTietNuocHoa.setXuatXu(request.getChiTietNuocHoa().getXuatXu());
+//            }
+//            if (request.getChiTietNuocHoa().getNamPhatHanh() > 0) {
+//                chiTietNuocHoa.setNamPhatHanh(request.getChiTietNuocHoa().getNamPhatHanh());
+//            }
+//            if (request.getChiTietNuocHoa().getNhomHuong() != null) {
+//                chiTietNuocHoa.setNhomHuong(request.getChiTietNuocHoa().getNhomHuong());
+//            }
+//            if (request.getChiTietNuocHoa().getPhongCachMuiHuong() != null) {
+//                chiTietNuocHoa.setPhongCachMuiHuong(request.getChiTietNuocHoa().getPhongCachMuiHuong());
+//            }
+//            if (request.getChiTietNuocHoa().getMoTa() != null) {
+//                chiTietNuocHoa.setMoTa(request.getChiTietNuocHoa().getMoTa());
+//            }
+//        }
 
         chiTietNuocHoaRepository.save(chiTietNuocHoa);
         nuocHoa = nuocHoaRepository.save(nuocHoa);

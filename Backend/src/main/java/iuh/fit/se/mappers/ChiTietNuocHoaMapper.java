@@ -12,6 +12,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = {NuocHoaService.class})
 public interface ChiTietNuocHoaMapper {
     ChiTietNuocHoa toChiTietNuocHoa(ChiTietNuocHoaCreateRequest request);
+    ChiTietNuocHoa toChiTietNuocHoa(ChiTietNuocHoaUpdateRequest request);
     @Mapping(target = "nuocHoaId", ignore = true)
     void updateChiTietNuocHoa(ChiTietNuocHoaUpdateRequest request, @MappingTarget ChiTietNuocHoa chiTietNuocHoa);
     ChiTietNuocHoaResponse toChiTietNuocHoaResponse(ChiTietNuocHoa chiTietNuocHoa);
