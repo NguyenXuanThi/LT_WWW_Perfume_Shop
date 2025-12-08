@@ -13,7 +13,7 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @ToString
 public class NuocHoaUpdateRequest {
-    @NotBlank(message = "Id không được để rỗng")
+    @Min(value = 1, message = "Id không được để rỗng")
     private int id;
     @NotBlank(message = "Tên sản phẩm không được rỗng")
     @Length(max = 255, message = "Tên sản phẩm không được quá 255 ký tự")
@@ -30,6 +30,6 @@ public class NuocHoaUpdateRequest {
     private double dungTich;
     private DoiTuong doiTuong;
     @NotNull(message = "Không được thiếu chi tiết nước hoa")
-    private ChiTietNuocHoaCreateRequest chiTietNuocHoa;
+    private ChiTietNuocHoaUpdateRequest chiTietNuocHoa;
     private int loaiNuocHoa;
 }
