@@ -1,6 +1,5 @@
 package iuh.fit.se.dtos.responses;
 
-import iuh.fit.se.entities.VaiTro;
 import iuh.fit.se.enums.TenVaiTro;
 import lombok.*;
 
@@ -18,4 +17,5 @@ public class TaiKhoanResponse {
     private String email;
     private String diaChi;
     private TenVaiTro vaiTro;
+    private boolean active;
 }
