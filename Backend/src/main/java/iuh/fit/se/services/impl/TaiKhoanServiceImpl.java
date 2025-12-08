@@ -1,8 +1,11 @@
 package iuh.fit.se.services.impl;
 
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanCreateRequest;
+import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanUpdateRequest;
 import iuh.fit.se.dtos.responses.TaiKhoanResponse;
 import iuh.fit.se.entities.TaiKhoan;
+import iuh.fit.se.exceptions.AppException;
+import iuh.fit.se.exceptions.ErrorCode;
 import iuh.fit.se.exceptions.PostException;
 import iuh.fit.se.mappers.TaiKhoanMapper;
 import iuh.fit.se.repositories.TaiKhoanRepository;
@@ -17,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -50,7 +54,7 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
     }
 
     @Override
-    public TaiKhoanResponse register(TaiKhoanCreateRequest request) {
+    public boolean register(TaiKhoanCreateRequest request) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         factory.close();
@@ -62,8 +66,28 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         TaiKhoan taiKhoan = taiKhoanMapper.toTaiKhoan(request);
         taiKhoan.setVaiTro(vaiTroService.findByIdRaw(2));
         taiKhoan.setPassword(passwordEncoder.encode(taiKhoan.getPassword()));
-        taiKhoan = taiKhoanRepository.save(taiKhoan);
+        taiKhoanRepository.save(taiKhoan);
 
-        return taiKhoanMapper.toTaiKhoanRespone(taiKhoan);
+        return true;
+    }
+
+    public boolean update(TaiKhoanUpdateRequest request) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        factory.close();
+        Set<ConstraintViolation<TaiKhoanUpdateRequest>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new PostException(violations);
+        }
+
+        TaiKhoan taiKhoan = findByEmailRaw(request.getEmail());
+        if (!Objects.equals(request.getConfirmPassword(), request.getNewPassword()))
+            throw new AppException(ErrorCode.CONFIRM_PASSWORD_DOES_NOT_MATCH);
+        if (!passwordEncoder.matches(request.getCurrentPassword(), taiKhoan.getPassword()))
+            throw new AppException(ErrorCode.CURRENT_PASSWORD_DOES_NOT_MATCH);
+        taiKhoanMapper.updateTaiKhoan(request, taiKhoan);
+        taiKhoan.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        taiKhoanRepository.save(taiKhoan);
+        return true;
     }
 }

@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useStore } from "@/store"
 
 const Header = () => {
+  const { user } = useStore()
+
   return (
     <header className="w-full">
       {/* Thanh thông báo đỏ trên cùng */}
@@ -41,16 +44,27 @@ const Header = () => {
           {/* Icon tài khoản + giỏ */}
           <div className="flex items-center gap-3 text-xs">
             {/* Link tới trang My Account */}
-            <Link
-              to="/account"
-              className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
-            >
-              Tài khoản của tôi
-            </Link>
-
-            <button className="hidden text-slate-700 hover:text-red-600 sm:inline-flex">
-              Đăng nhập
-            </button>
+            {
+              user ?
+                <Link
+                  to="/account"
+                  className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
+                >
+                  Tài khoản của tôi
+                </Link> :
+                <Link to="/login" className="hidden text-slate-700 hover:text-red-600 sm:inline-flex">
+                  Đăng nhập
+                </Link>
+            }
+            {
+              (user && user.vaiTro === "Admin" ) ?
+                <Link
+                  to="/admin/dashboard"
+                  className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
+                >
+                  Quản lý
+                </Link> : ""
+            }
 
             <button className="relative flex items-center gap-1 rounded-full bg-red-600 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
               <span>Giỏ hàng</span>
