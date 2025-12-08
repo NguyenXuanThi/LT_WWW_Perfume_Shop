@@ -35,14 +35,15 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
     List<Object[]> thongKeDoanhThuTheoNgay(@Param("startDate") LocalDate startDate,
                                            @Param("endDate") LocalDate endDate);
 
-    // Thống kê doanh thu theo tháng
-    @Query("SELECT CONCAT(YEAR(d.ngayDat), '-', LPAD(CAST(MONTH(d.ngayDat) as string), 2, '0')) as label, " +
-            "SUM(d.thanhTien) as doanhThu, COUNT(d) as soDonHang " +
-            "FROM DonHang d " +
-            "WHERE d.trangThaiDonHang = 'DA_GIAO' " +
-            "AND YEAR(d.ngayDat) = :year " +
-            "GROUP BY YEAR(d.ngayDat), MONTH(d.ngayDat) " +
-            "ORDER BY MONTH(d.ngayDat)")
+    // Thống kê doanh thu theo tháng - SỬA LẠI: Sử dụng Native Query
+    @Query(value = "SELECT CONCAT(YEAR(ngayDat), '-', LPAD(MONTH(ngayDat), 2, '0')) as label, " +
+            "SUM(thanhTien) as doanhThu, COUNT(*) as soDonHang " +
+            "FROM DonHang " +
+            "WHERE trangThaiDonHang = 'DA_GIAO' " +
+            "AND YEAR(ngayDat) = :year " +
+            "GROUP BY YEAR(ngayDat), MONTH(ngayDat) " +
+            "ORDER BY MONTH(ngayDat)",
+            nativeQuery = true)
     List<Object[]> thongKeDoanhThuTheoThang(@Param("year") int year);
 
     // Thống kê doanh thu theo năm

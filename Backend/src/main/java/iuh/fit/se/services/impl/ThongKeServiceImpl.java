@@ -34,11 +34,18 @@ public class ThongKeServiceImpl implements ThongKeService {
     public List<ThongKeDoanhThuResponse> thongKeDoanhThuTheoThang(int year) {
         return donHangRepository.thongKeDoanhThuTheoThang(year)
                 .stream()
-                .map(row -> ThongKeDoanhThuResponse.builder()
-                        .label("Tháng " + row[0])
-                        .doanhThu((Double) row[1])
-                        .soDonHang((Long) row[2])
-                        .build())
+                .map(row -> {
+                    // Native query returns: label (String: "2024-01"), doanhThu (Double), soDonHang (Long or BigInteger)
+                    String label = (String) row[0];
+                    Double doanhThu = ((Number) row[1]).doubleValue();
+                    Long soDonHang = ((Number) row[2]).longValue();
+
+                    return ThongKeDoanhThuResponse.builder()
+                            .label(label) // Format: "2024-01", "2024-02", etc.
+                            .doanhThu(doanhThu)
+                            .soDonHang(soDonHang)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
