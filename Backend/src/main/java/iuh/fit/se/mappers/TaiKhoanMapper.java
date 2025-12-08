@@ -12,7 +12,7 @@ import org.mapstruct.MappingTarget;
 public interface TaiKhoanMapper {
     @Mapping(target = "active", constant = "true")
     TaiKhoan toTaiKhoan(TaiKhoanCreateRequest request);
-    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "newPassword", target = "password")
     void updateTaiKhoan(TaiKhoanUpdateRequest request, @MappingTarget TaiKhoan taiKhoan);
     @Mapping(source = "vaiTro.tenVaiTro", target = "vaiTro")
     TaiKhoanResponse toTaiKhoanRespone(TaiKhoan TaiKhoan);

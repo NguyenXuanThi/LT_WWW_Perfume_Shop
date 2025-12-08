@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class TaiKhoanUpdateRequest {
-    private int id;
     @NotBlank(message = "Tên không được để trống")
     @Pattern(regexp = "^[A-ZĐÂ].+( [A-ZĐÂ].+)*$", message = "Tên phải bắt đầu bằng chữ hoa")
     private String hoTen;
@@ -26,7 +25,11 @@ public class TaiKhoanUpdateRequest {
     @Email(message = "Phải đúng định dạng email")
     private String email;
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$", message = "Mật khẩu phải trên 8 ký tự, có chữ hoa, thường và số")
-    private String password;
+    private String currentPassword;
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$", message = "Mật khẩu phải trên 8 ký tự, có chữ hoa, thường và số")
+    private String newPassword;
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$", message = "Mật khẩu phải trên 8 ký tự, có chữ hoa, thường và số")
+    private String confirmPassword;
     @Length(max = 255)
     private String diaChi;
 }
