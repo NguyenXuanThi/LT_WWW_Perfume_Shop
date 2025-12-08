@@ -41,6 +41,6 @@ public class NuocHoa {
     @ManyToOne
     @JoinColumn(name = "loaiNuocHoaId")
     private LoaiNuocHoa loaiNuocHoa;
-    @OneToOne(mappedBy = "nuocHoa")
+    @OneToOne(mappedBy = "nuocHoa", cascade = CascadeType.ALL)
     private ChiTietNuocHoa chiTietNuocHoa;
 }

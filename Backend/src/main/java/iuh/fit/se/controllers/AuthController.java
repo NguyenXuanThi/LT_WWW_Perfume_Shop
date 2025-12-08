@@ -27,23 +27,24 @@ public class AuthController {
     private final JwtTokenService jwtTokenService;
 
     @PostMapping("/login")
-    public ApiResponse<Map<String, String>> login(@RequestBody LoginRequest request) {
+    public ApiResponse<Map<String, Object>> login(@RequestBody LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         String token = jwtTokenService.generateToken(userDetails);
 
-        return ApiResponse.<Map<String, String>>builder()
-                .body(Map.of("token", token)).build();
+        TaiKhoanResponse taiKhoanResponse = taiKhoanService.findByEmail(userDetails.getUsername());
+
+        return ApiResponse.<Map<String, Object>>builder()
+                .body(Map.of("token", token, "user", taiKhoanResponse)).build();
     }
 
     @PostMapping("/register")
-    public ApiResponse<TaiKhoanResponse> register(@RequestBody TaiKhoanCreateRequest request) {
-        TaiKhoanResponse response = taiKhoanService.register(request);
-        return ApiResponse.<TaiKhoanResponse>builder()
+    public ApiResponse<Boolean> register(@RequestBody TaiKhoanCreateRequest request) {
+        boolean response = taiKhoanService.register(request);
+        return ApiResponse.<Boolean>builder()
                 .body(response).build();
     }
 }

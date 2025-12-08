@@ -2,6 +2,7 @@ package iuh.fit.se.dtos.requests.chiTietNuocHoa;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class ChiTietNuocHoaUpdateRequest {
-    @NotBlank(message = "Id không được để rỗng")
+    @Min(value = 1, message = "Id không được để rỗng")
     private int nuocHoaId;
     private List<String> hinhAnhChiTiet;
     @Length(max = 100, message = "Xuất xứ không được quá 100 ký tự")
