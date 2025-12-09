@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import ProductCard, {
@@ -8,121 +8,12 @@ import ProductCard, {
 
 import type { Gender, PerfumeDetail } from "../../interface/Product";
 import { getFinalPrice, buildImageUrl } from "../../interface/Product";
+import { getAllProducts } from "../../services/productService";
 
-const MOCK_PRODUCTS: PerfumeDetail[] = [
-  {
-    id: 1,
-    name: "Dior Sauvage",
-    brand: "Dior",
-    basePrice: 3_500_000,
-    discountPercent: 10,
-    mainImageFile: "dior_sauvage.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 2,
-      code: "EDT",
-      description: "Eau de Toilette",
-      oilConcentration: "5-15%",
-      longevity: "4-6h",
-      sillage: "Gần",
-    },
-    galleryImages: ["dior_sauvage.jpg"],
-    averageRating: 5.0,
-    ratingCount: 2,
-  },
-  {
-    id: 3,
-    name: "Versace Eros",
-    brand: "Versace",
-    basePrice: 2_100_000,
-    discountPercent: 15,
-    mainImageFile: "versace_eros.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 2,
-      code: "EDT",
-      description: "Eau de Toilette",
-      oilConcentration: "5-15%",
-      longevity: "4-6h",
-      sillage: "Vừa",
-    },
-    galleryImages: ["versace_eros.jpg"],
-    averageRating: 4.5,
-    ratingCount: 2,
-  },
-  {
-    id: 7,
-    name: "Acqua Di Gio Pour Homme",
-    brand: "Giorgio Armani",
-    basePrice: 2_500_000,
-    discountPercent: 20,
-    mainImageFile: "acqua_gio.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 2,
-      code: "EDT",
-      description: "Eau de Toilette",
-    },
-    galleryImages: ["acqua_gio.jpg"],
-    averageRating: 4.8,
-    ratingCount: 1,
-  },
-  {
-    id: 9,
-    name: "Creed Aventus",
-    brand: "Creed",
-    basePrice: 8_500_000,
-    discountPercent: 0,
-    mainImageFile: "creed_aventus.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 1,
-      code: "EDP",
-      description: "Eau de Parfum",
-    },
-    galleryImages: ["creed_aventus.jpg"],
-    averageRating: 5.0,
-    ratingCount: 2,
-  },
-  {
-    id: 12,
-    name: "Burberry London",
-    brand: "Burberry",
-    basePrice: 1_800_000,
-    discountPercent: 20,
-    mainImageFile: "burberry_london.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 2,
-      code: "EDT",
-    },
-    galleryImages: ["burberry_london.jpg"],
-    averageRating: 3.5,
-    ratingCount: 1,
-  },
-  {
-    id: 14,
-    name: "Jazz Club",
-    brand: "Maison Margiela",
-    basePrice: 3_500_000,
-    discountPercent: 0,
-    mainImageFile: "jazz_club.jpg",
-    volume: 100,
-    gender: "MALE",
-    type: {
-      id: 2,
-      code: "EDT",
-    },
-    galleryImages: ["jazz_club.jpg"],
-    averageRating: 5.0,
-    ratingCount: 1,
-  },
-];
+// Wrapper function for fetching all perfumes
+const getAllPerfumes = async (): Promise<PerfumeDetail[]> => {
+  return getAllProducts();
+};
 
 type SortOption = "BEST_SELLING" | "PRICE_ASC" | "PRICE_DESC" | "NEWEST";
 
@@ -133,7 +24,39 @@ type PriceFilter =
   | "FROM_4_TO_6"
   | "ABOVE_6";
 
-const GENDER: Gender = "MALE";
+// Gender configuration for dynamic page content
+type GenderConfig = {
+  gender: Gender;
+  title: string;
+  breadcrumb: string;
+  description: string;
+};
+
+const GENDER_CONFIGS: Record<string, GenderConfig> = {
+  nam: {
+    gender: "MALE",
+    title: "Nước hoa nam",
+    breadcrumb: "Nước hoa nam",
+    description:
+      "Các quý ông đang tìm đến nước hoa để làm gì? Có lẽ là để thơm hơn, nam tính và làm chỉn chu thêm phong cách của bản thân. Shop hiểu các quý ông của chúng ta: một chai nước hoa cho công việc mỗi ngày, một chai cho các buổi hẹn hò hoặc những dịp đặc biệt.",
+  },
+  nu: {
+    gender: "FEMALE",
+    title: "Nước hoa nữ",
+    breadcrumb: "Nước hoa nữ",
+    description:
+      "Khám phá bộ sưu tập nước hoa nữ đa dạng từ các thương hiệu hàng đầu thế giới. Từ hương hoa ngọt ngào đến những mùi hương quyến rũ, tinh tế - mỗi chai nước hoa là một câu chuyện riêng dành cho phái đẹp.",
+  },
+  unisex: {
+    gender: "UNISEX",
+    title: "Nước hoa unisex",
+    breadcrumb: "Nước hoa unisex",
+    description:
+      "Nước hoa unisex - sự lựa chọn hoàn hảo cho những ai yêu thích phong cách tự do, không giới hạn. Những mùi hương trung tính, tinh tế phù hợp cho cả nam và nữ, mang đến sự thanh lịch và cá tính riêng biệt.",
+  },
+};
+
+const DEFAULT_GENDER_CONFIG = GENDER_CONFIGS.nam;
 
 function mapPerfumeToCardProps(p: PerfumeDetail): ProductCardProps {
   const finalPrice = getFinalPrice(p);
@@ -150,22 +73,61 @@ function mapPerfumeToCardProps(p: PerfumeDetail): ProductCardProps {
 }
 
 const ProductListPage = () => {
+  // Get gender from URL params
+  const { gender: genderParam } = useParams<{ gender: string }>();
+  
+  // Get gender config based on URL param (default to 'nam' if not found)
+  const genderConfig = useMemo(() => {
+    return GENDER_CONFIGS[genderParam ?? "nam"] ?? DEFAULT_GENDER_CONFIG;
+  }, [genderParam]);
+
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceFilter, setPriceFilter] = useState<PriceFilter>("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("BEST_SELLING");
+  
+  // API integration
+  const [allProducts, setAllProducts] = useState<PerfumeDetail[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Reset filters when gender changes
+  useEffect(() => {
+    setSelectedBrands([]);
+    setPriceFilter("ALL");
+  }, [genderParam]);
+  
+  // Fetch products on mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const products = await getAllPerfumes();
+        setAllProducts(products);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const allMaleProducts = useMemo(
-    () => MOCK_PRODUCTS.filter((p) => p.gender === GENDER),
-    []
+    fetchProducts();
+  }, []);
+
+  // Filter products by current gender
+  const genderFilteredProducts = useMemo(
+    () => allProducts.filter((p) => p.gender === genderConfig.gender),
+    [allProducts, genderConfig.gender]
   );
 
   const allBrands = useMemo(
-    () => Array.from(new Set(allMaleProducts.map((p) => p.brand))).sort(),
-    [allMaleProducts]
+    () => Array.from(new Set(genderFilteredProducts.map((p) => p.brand))).sort(),
+    [genderFilteredProducts]
   );
 
   const filteredProducts = useMemo(() => {
-    let result = [...allMaleProducts];
+    let result = [...genderFilteredProducts];
 
     if (selectedBrands.length > 0) {
       result = result.filter((p) => selectedBrands.includes(p.brand));
@@ -202,7 +164,7 @@ const ProductListPage = () => {
     });
 
     return result;
-  }, [allMaleProducts, selectedBrands, priceFilter, sortBy]);
+  }, [genderFilteredProducts, selectedBrands, priceFilter, sortBy]);
 
   const handleBrandToggle = (brand: string) => {
     setSelectedBrands((prev) =>
@@ -218,22 +180,19 @@ const ProductListPage = () => {
 
       <main className="mx-auto max-w-6xl px-4 py-6">
         <nav className="mb-3 text-xs text-slate-500">
-          <span className="cursor-pointer hover:text-red-600">Trang chủ</span>
+          <Link to="/" className="hover:text-red-600">Trang chủ</Link>
           <span className="mx-1">/</span>
-          <span className="cursor-pointer hover:text-red-600">Nước hoa</span>
+          <Link to="/nuoc-hoa/nam" className="hover:text-red-600">Nước hoa</Link>
           <span className="mx-1">/</span>
-          <span className="font-semibold text-slate-800">Nước hoa nam</span>
+          <span className="font-semibold text-slate-800">{genderConfig.breadcrumb}</span>
         </nav>
 
         <section className="mb-6 max-w-3xl text-sm text-slate-600">
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
-            Nước hoa nam
+            {genderConfig.title}
           </h1>
           <p>
-            Các quý ông đang tìm đến nước hoa để làm gì? Có lẽ là để thơm hơn,
-            nam tính và làm chỉn chu thêm phong cách của bản thân. Shop hiểu các
-            quý ông của chúng ta: một chai nước hoa cho công việc mỗi ngày, một
-            chai cho các buổi hẹn hò hoặc những dịp đặc biệt.
+            {genderConfig.description}
           </p>
         </section>
 
@@ -321,41 +280,70 @@ const ProductListPage = () => {
           </aside>
 
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Nước hoa nam
-                </h2>
-                <p className="text-xs text-slate-500">{totalCount} kết quả</p>
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-red-600"></div>
+                  <p className="mt-4 text-sm text-slate-500">Đang tải sản phẩm...</p>
+                </div>
               </div>
+            )}
 
-              <div className="flex items-center gap-2 text-xs text-slate-700">
-                <span className="hidden sm:inline">Sắp xếp theo:</span>
-                <select
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+            {/* Error State */}
+            {error && !loading && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <p className="text-sm text-red-800">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-2 text-sm font-semibold text-red-600 hover:text-red-700"
                 >
-                  <option value="BEST_SELLING">Bán chạy nhất</option>
-                  <option value="PRICE_ASC">Giá tăng dần</option>
-                  <option value="PRICE_DESC">Giá giảm dần</option>
-                  <option value="NEWEST">Mới nhất</option>
-                </select>
+                  Thử lại
+                </button>
               </div>
-            </div>
+            )}
 
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {filteredProducts.map((p) => (
-                <Link key={p.id} to={`/product/${p.id}`} className="block">
-                  <ProductCard {...mapPerfumeToCardProps(p)} />
-                </Link>
-              ))}
-              {filteredProducts.length === 0 && (
-                <p className="col-span-full text-sm text-slate-500">
-                  Không tìm thấy sản phẩm nào với bộ lọc hiện tại.
-                </p>
-              )}
-            </div>
+            {/* Content */}
+            {!loading && !error && (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4"
+                >
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      {genderConfig.title}
+                    </h2>
+                    <p className="text-xs text-slate-500">{totalCount} kết quả</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-slate-700">
+                    <span className="hidden sm:inline">Sắp xếp theo:</span>
+                    <select
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    >
+                      <option value="BEST_SELLING">Bán chạy nhất</option>
+                      <option value="PRICE_ASC">Giá tăng dần</option>
+                      <option value="PRICE_DESC">Giá giảm dần</option>
+                      <option value="NEWEST">Mới nhất</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {filteredProducts.map((p) => (
+                    <Link key={p.id} to={`/product/${p.id}`} className="block">
+                      <ProductCard {...mapPerfumeToCardProps(p)} />
+                    </Link>
+                  ))}
+                  {filteredProducts.length === 0 && (
+                    <p className="col-span-full text-sm text-slate-500">
+                      Không tìm thấy sản phẩm nào với bộ lọc hiện tại.
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

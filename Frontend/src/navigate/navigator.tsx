@@ -14,7 +14,8 @@ const Navigator = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/nuoc-hoa-nam" element={<ProductListPage />} />
+      {/* Dynamic gender routes for perfume listing */}
+      <Route path="/nuoc-hoa/:gender" element={<ProductListPage />} />
       <Route path="/product/:id" element={<ProductDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
