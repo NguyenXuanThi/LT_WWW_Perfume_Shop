@@ -159,4 +159,14 @@ public class NuocHoaServiceImpl implements NuocHoaService {
                 .map(nuocHoaMapper::toNuocHoaResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean existsNuocHoaByHinhAnhChinh(String hinhAnhChinh) {
+        return nuocHoaRepository.existsNuocHoaByHinhAnhChinh(hinhAnhChinh);
+    }
+
+    @Override
+    public boolean existsNuocHoaByChiTietNuocHoa_HinhAnhChiTietContaining(String urlHinhAnh) {
+        return nuocHoaRepository.existsNuocHoaByChiTietNuocHoa_HinhAnhChiTietContaining(urlHinhAnh);
+    }
 }

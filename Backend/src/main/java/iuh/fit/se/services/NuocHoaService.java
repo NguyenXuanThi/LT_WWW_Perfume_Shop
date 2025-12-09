@@ -17,4 +17,6 @@ public interface NuocHoaService {
     NuocHoaResponse update(NuocHoaUpdateRequest request);
     void delete(int id);
     List<NuocHoaResponse> search(String keyword);
+    boolean existsNuocHoaByHinhAnhChinh(String hinhAnhChinh);
+    boolean existsNuocHoaByChiTietNuocHoa_HinhAnhChiTietContaining(String urlHinhAnh);
 }
