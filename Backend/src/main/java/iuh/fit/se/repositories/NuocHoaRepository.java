@@ -32,4 +32,8 @@ public interface NuocHoaRepository extends JpaRepository<NuocHoa, Integer> {
             "LOWER(n.thuongHieu) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "ORDER BY n.id DESC")
     List<NuocHoa> searchByKeyword(@Param("keyword") String keyword);
+
+    boolean existsNuocHoaByHinhAnhChinh(String hinhAnhChinh);
+
+    boolean existsNuocHoaByChiTietNuocHoa_HinhAnhChiTietContaining(String urlHinhAnh);
 }
