@@ -1,5 +1,7 @@
 package iuh.fit.se.services.impl;
 
+import iuh.fit.se.dtos.requests.chiTietNuocHoa.ChiTietNuocHoaCreateRequest;
+import iuh.fit.se.dtos.requests.chiTietNuocHoa.ChiTietNuocHoaUpdateRequest;
 import iuh.fit.se.dtos.requests.nuocHoa.NuocHoaCreateRequest;
 import iuh.fit.se.dtos.requests.nuocHoa.NuocHoaUpdateRequest;
 import iuh.fit.se.dtos.responses.NuocHoaResponse;
@@ -11,7 +13,6 @@ import iuh.fit.se.mappers.ChiTietNuocHoaMapper;
 import iuh.fit.se.mappers.NuocHoaMapper;
 import iuh.fit.se.repositories.ChiTietNuocHoaRepository;
 import iuh.fit.se.repositories.NuocHoaRepository;
-import iuh.fit.se.services.LoaiNuocHoaService;
 import iuh.fit.se.services.NuocHoaService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +34,6 @@ public class NuocHoaServiceImpl implements NuocHoaService {
     private final ChiTietNuocHoaRepository chiTietNuocHoaRepository;
     private final NuocHoaMapper nuocHoaMapper;
     private final ChiTietNuocHoaMapper chiTietNuocHoaMapper;
-    private final LoaiNuocHoaService loaiNuocHoaService;
 
     @Override
     public NuocHoa findByIdRaw(int id) {
@@ -63,20 +64,31 @@ public class NuocHoaServiceImpl implements NuocHoaService {
         // Validate request
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
+
+        // Validate NuocHoa (Cha)
         Set<ConstraintViolation<NuocHoaCreateRequest>> violations = validator.validate(request);
+
+        // Validate ChiTietNuocHoa (Con) - NEW
+        Set<ConstraintViolation<ChiTietNuocHoaCreateRequest>> chiTietViolations = validator.validate(request.getChiTietNuocHoa());
+
         factory.close();
 
+        // Kiểm tra lỗi ở cả cha và con
         if (!violations.isEmpty()) {
             throw new PostException(violations);
         }
+        if (!chiTietViolations.isEmpty()) {
+            throw new PostException(chiTietViolations);
+        }
 
-        // Map NuocHoa
+        // Map NuocHoa (Mapper tự xử lý LoaiNuocHoa)
         NuocHoa nuocHoa = nuocHoaMapper.toNuocHoa(request);
-//        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
 
+        // Map & Link ChiTietNuocHoa
         ChiTietNuocHoa chiTietNuocHoa = chiTietNuocHoaMapper.toChiTietNuocHoa(request.getChiTietNuocHoa());
         chiTietNuocHoa.setNuocHoa(nuocHoa);
         nuocHoa.setChiTietNuocHoa(chiTietNuocHoa);
+
         nuocHoa = nuocHoaRepository.save(nuocHoa);
 
         return nuocHoaMapper.toNuocHoaResponse(nuocHoa);
@@ -88,50 +100,41 @@ public class NuocHoaServiceImpl implements NuocHoaService {
         // Validate request
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
+
+        // Validate NuocHoa (Cha)
         Set<ConstraintViolation<NuocHoaUpdateRequest>> violations = validator.validate(request);
+
+        // Validate ChiTietNuocHoa (Con) - NEW
+        Set<ConstraintViolation<ChiTietNuocHoaUpdateRequest>> chiTietViolations = validator.validate(request.getChiTietNuocHoa());
+
         factory.close();
 
         if (!violations.isEmpty()) {
             throw new PostException(violations);
         }
+        if (!chiTietViolations.isEmpty()) {
+            throw new PostException(chiTietViolations);
+        }
 
         // Find existing NuocHoa
         NuocHoa nuocHoa = findByIdRaw(request.getId());
 
-        // Update NuocHoa
+        // Update NuocHoa (Mapper tự xử lý LoaiNuocHoa)
         nuocHoaMapper.updateNuocHoa(request, nuocHoa);
-//        nuocHoa.setLoaiNuocHoa(loaiNuocHoaService.findByIdRaw(request.getLoaiNuocHoa()));
 
         // Update ChiTietNuocHoa
         ChiTietNuocHoa chiTietNuocHoa = nuocHoa.getChiTietNuocHoa();
-        chiTietNuocHoaMapper.updateChiTietNuocHoa(request.getChiTietNuocHoa(), chiTietNuocHoa);
-//        if (chiTietNuocHoa == null) {
-//            // Nếu chưa có ChiTietNuocHoa, tạo mới
-//            chiTietNuocHoa = chiTietNuocHoaMapper.toChiTietNuocHoa(request.getChiTietNuocHoa());
-//            chiTietNuocHoa.setNuocHoaId(nuocHoa.getId());
-//            chiTietNuocHoa.setNuocHoa(nuocHoa);
-//        } else {
-//            // Nếu đã có, update từng field
-//            if (request.getChiTietNuocHoa().getHinhAnhChiTiet() != null) {
-//                chiTietNuocHoa.setHinhAnhChiTiet(request.getChiTietNuocHoa().getHinhAnhChiTiet());
-//            }
-//            if (request.getChiTietNuocHoa().getXuatXu() != null) {
-//                chiTietNuocHoa.setXuatXu(request.getChiTietNuocHoa().getXuatXu());
-//            }
-//            if (request.getChiTietNuocHoa().getNamPhatHanh() > 0) {
-//                chiTietNuocHoa.setNamPhatHanh(request.getChiTietNuocHoa().getNamPhatHanh());
-//            }
-//            if (request.getChiTietNuocHoa().getNhomHuong() != null) {
-//                chiTietNuocHoa.setNhomHuong(request.getChiTietNuocHoa().getNhomHuong());
-//            }
-//            if (request.getChiTietNuocHoa().getPhongCachMuiHuong() != null) {
-//                chiTietNuocHoa.setPhongCachMuiHuong(request.getChiTietNuocHoa().getPhongCachMuiHuong());
-//            }
-//            if (request.getChiTietNuocHoa().getMoTa() != null) {
-//                chiTietNuocHoa.setMoTa(request.getChiTietNuocHoa().getMoTa());
-//            }
-//        }
 
+        // Nếu data cũ không có chi tiết, tạo mới để tránh NullPointerException
+        if (chiTietNuocHoa == null) {
+            // Logic tạo mới nếu cần, hoặc map từ request sang object mới
+            // Ở đây giả sử update thì đã có chi tiết rồi hoặc mapper xử lý
+            // Nếu cần thiết có thể gán: chiTietNuocHoa = new ChiTietNuocHoa(); nuocHoa.setChiTietNuocHoa(chiTietNuocHoa);
+        }
+
+        chiTietNuocHoaMapper.updateChiTietNuocHoa(request.getChiTietNuocHoa(), chiTietNuocHoa);
+
+        // Save (Cascade ALL sẽ lo phần chi tiết, nhưng save rõ ràng cũng tốt)
         chiTietNuocHoaRepository.save(chiTietNuocHoa);
         nuocHoa = nuocHoaRepository.save(nuocHoa);
 

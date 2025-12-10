@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -16,33 +17,38 @@ public class ImageServiceImpl implements ImageService {
     private final Cloudinary cloudinary;
     private final String SEPARATOR = "?";
 
+    // Sử dụng ConcurrentHashMap để an toàn khi nhiều người cùng upload
+    // Key: Chuỗi ảnh (URL?PublicId), Value: Thời gian upload (Timestamp)
+    private final Map<String, Long> pendingImages = new ConcurrentHashMap<>();
+
     @Override
     public String luuAnh(MultipartFile file) throws IOException {
-        // 1. Lấy phần mở rộng (extension) của file gốc
         String originalFilename = file.getOriginalFilename();
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
 
-        // 2. Tạo tên file duy nhất (UUID) và kết hợp với extension
         String uniqueID = java.util.UUID.randomUUID().toString();
         String newFileName = uniqueID + fileExtension;
 
-        // 3. Sử dụng tên file mới làm Public ID trong Cloudinary
-        Map<String, Object> uploadOptions = com.cloudinary.utils.ObjectUtils.asMap(
+        Map<String, Object> uploadOptions = ObjectUtils.asMap(
                 "folder", "nuoc_hoa_project",
-                "public_id", newFileName, // 👈 Đặt Public ID là tên file mới
+                "public_id", newFileName,
                 "resource_type", "auto"
         );
 
         try {
-            // ... (phần code tải lên)
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadOptions);
             String secureUrl = uploadResult.get("secure_url").toString();
             String publicId = uploadResult.get("public_id").toString();
 
-            return secureUrl + SEPARATOR + publicId;
+            String result = secureUrl + SEPARATOR + publicId;
+
+            // LƯU Ý: Sau khi upload thành công, đưa ngay vào danh sách theo dõi
+            trackImage(result);
+
+            return result;
         } catch (IOException e) {
             throw new IOException("Tải ảnh lên Cloudinary thất bại: " + e.getMessage());
         }
@@ -57,22 +63,30 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public String[] splitUrlAndPublicId(String combinedString) {
         if (combinedString == null || !combinedString.contains(SEPARATOR)) {
-            // Xử lý lỗi hoặc trả về mảng rỗng/null
             throw new IllegalArgumentException("Định dạng chuỗi hình ảnh không hợp lệ.");
         }
-
-        // Chỉ tách chuỗi tại vị trí của SEPARATOR đầu tiên
-        // Giới hạn = 2 đảm bảo chỉ tách thành 2 phần
-        String[] parts = combinedString.split(SEPARATOR, 2);
-
+        String[] parts = combinedString.split("\\?", 2); // Regex split ? cần \\
         if (parts.length != 2) {
-            throw new IllegalArgumentException("Không tìm thấy đủ 2 phần tử (URL và Public ID).");
+            throw new IllegalArgumentException("Không tìm thấy đủ 2 phần tử.");
         }
-
-        // Trim để loại bỏ khoảng trắng dư thừa
         parts[0] = parts[0].trim();
         parts[1] = parts[1].trim();
-
         return parts;
+    }
+
+    @Override
+    public void trackImage(String combinedString) {
+        // Lưu thời gian hiện tại
+        pendingImages.put(combinedString, System.currentTimeMillis());
+    }
+
+    @Override
+    public Map<String, Long> getPendingImages() {
+        return pendingImages;
+    }
+
+    @Override
+    public void removeImageFromTracking(String combinedString) {
+        pendingImages.remove(combinedString);
     }
 }

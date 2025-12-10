@@ -2,7 +2,6 @@ package iuh.fit.se.controllers;
 
 import iuh.fit.se.dtos.ApiResponse;
 import iuh.fit.se.services.ImageService;
-import iuh.fit.se.services.NuocHoaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 @PreAuthorize("hasAuthority('Admin')")
 public class ImageController {
     private final ImageService imageService;
-    private final NuocHoaService nuocHoaService;
 
     @PostMapping
     public ApiResponse<String> addImage(@RequestPart("hinhAnhFile") MultipartFile file) throws Exception {
+        // Upload ảnh, hàm này đã tự động gọi trackImage() bên trong Service rồi
         String hinhAnh = imageService.luuAnh(file);
-//        Thread checkTimeout = new Thread(() -> {
-//            try {
-//                Thread.sleep(11000);
-//                if(!nuocHoaService.existsNuocHoaByHinhAnhChinh(hinhAnh) && !nuocHoaService.existsNuocHoaByChiTietNuocHoa_HinhAnhChiTietContaining(hinhAnh))
-//                    deleteImage(imageService.splitUrlAndPublicId(id)[1]);
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//        checkTimeout.start();
+
+        // Trả về ngay lập tức, không cần Thread chờ đợi gì cả
         return ApiResponse.<String>builder().body(hinhAnh).build();
     }
 
