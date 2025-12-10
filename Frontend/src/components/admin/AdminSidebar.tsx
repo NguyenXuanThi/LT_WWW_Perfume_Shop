@@ -11,6 +11,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { name: "Dashboard", path: "/admin/dashboard", icon: "📊" },
   { name: "Quản lý sản phẩm", path: "/admin/products", icon: "📦" },
+  { name: "Quản lý loại SP", path: "/admin/categories", icon: "🏷️" },
   { name: "Quản lý đơn hàng", path: "/admin/orders", icon: "🛒" },
   { name: "Quản lý người dùng", path: "/admin/manage", icon: "👥" },
   {
@@ -153,6 +154,15 @@ const AdminSidebar = () => {
           })}
         </ul>
       </nav>
+      <div className="p-4 border-t border-slate-700 bg-slate-900 sticky bottom-0">
+        <Link
+          to="/"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 border border-transparent hover:border-slate-600"
+        >
+          <span className="text-xl">🏠</span>
+          <span className="text-sm font-medium">Về Trang Chủ</span>
+        </Link>
+      </div>
     </aside>
   );
 };

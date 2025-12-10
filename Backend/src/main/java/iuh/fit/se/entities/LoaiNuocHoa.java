@@ -1,9 +1,7 @@
 package iuh.fit.se.entities;
 
-import iuh.fit.se.enums.TenLoai;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Set;
 
 @Getter
@@ -18,8 +16,10 @@ public class LoaiNuocHoa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Enumerated(EnumType.STRING)
-    private TenLoai tenLoai;
+
+    @Column(nullable = false, unique = true)
+    private String tenLoai;
+
     @Column(columnDefinition = "text")
     private String moTa;
     @Column(length = 100)

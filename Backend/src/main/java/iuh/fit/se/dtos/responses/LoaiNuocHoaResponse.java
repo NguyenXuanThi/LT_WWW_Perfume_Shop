@@ -10,7 +10,7 @@ import lombok.*;
 @ToString
 public class LoaiNuocHoaResponse {
     private int id;
-    private TenLoai tenLoai;
+    private String tenLoai;
     private String moTa;
     private String nongDoTinhDau;
     private String doLuuHuong;

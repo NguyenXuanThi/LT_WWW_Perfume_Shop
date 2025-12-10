@@ -1,6 +1,6 @@
 package iuh.fit.se.dtos.requests.loaiNuocHoa;
 
-import iuh.fit.se.enums.TenLoai;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -10,7 +10,8 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @ToString
 public class LoaiNuocHoaCreateRequest {
-    private TenLoai tenLoai;
+    @NotBlank(message = "Tên loại không được để trống")
+    private String tenLoai;
     private String moTa;
     @Length(max = 100, message = "Nồng độ tinh dầu không được quá 100 ký tự")
     private String nongDoTinhDau;

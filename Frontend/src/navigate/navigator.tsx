@@ -13,6 +13,7 @@ import AdminOrderList from "@/page/admin/AdminOrderList";
 import AdminUserManagement from "@/page/admin/AdminUserManagement";
 import AccountAuthenticate from "@/page/account/AccountAuthenticate";
 import AdminStatistics from "@/page/admin/AdminStatistics";
+import AdminCategoryList from "@/page/admin/AdminCategoryList";
 
 const Navigator = () => {
   return (
@@ -26,7 +27,7 @@ const Navigator = () => {
       {/* Admin Routes */}
       <Route element={<AdminAuthenticate />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-
+        <Route path="/admin/categories" element={<AdminCategoryList />} />
         <Route path="/admin/products" element={<AdminProductList />} />
         <Route path="/admin/products/new" element={<AdminProductEdit />} />
         <Route path="/admin/products/edit/:id" element={<AdminProductEdit />} />

@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 @ToString
 public class LoaiNuocHoaUpdateRequest {
     private int id;
-    private TenLoai tenLoai;
+    private String tenLoai;
     private String moTa;
     @Length(max = 100, message = "Nồng độ tinh dầu không được quá 100 ký tự")
     private String nongDoTinhDau;
