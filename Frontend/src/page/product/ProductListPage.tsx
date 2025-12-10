@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import ProductCard, {
@@ -24,15 +24,21 @@ type PriceFilter =
   | "FROM_4_TO_6"
   | "ABOVE_6";
 
-// Gender configuration for dynamic page content
 type GenderConfig = {
-  gender: Gender;
+  gender: Gender | "ALL";
   title: string;
   breadcrumb: string;
-  description: string;
+  description: string; 
 };
 
 const GENDER_CONFIGS: Record<string, GenderConfig> = {
+  "tat-ca": {
+    gender: "ALL",
+    title: "Tất cả sản phẩm",
+    breadcrumb: "Tất cả",
+    description:
+      "Khám phá thế giới nước hoa đa dạng và phong phú. Tại đây bạn sẽ tìm thấy tất cả những mùi hương tuyệt vời nhất dành cho mọi phong cách và cá tính.",
+  },
   nam: {
     gender: "MALE",
     title: "Nước hoa nam",
@@ -75,7 +81,8 @@ function mapPerfumeToCardProps(p: PerfumeDetail): ProductCardProps {
 const ProductListPage = () => {
   // Get gender from URL params
   const { gender: genderParam } = useParams<{ gender: string }>();
-  
+  const [searchParams] = useSearchParams();
+
   // Get gender config based on URL param (default to 'nam' if not found)
   const genderConfig = useMemo(() => {
     return GENDER_CONFIGS[genderParam ?? "nam"] ?? DEFAULT_GENDER_CONFIG;
@@ -84,18 +91,23 @@ const ProductListPage = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceFilter, setPriceFilter] = useState<PriceFilter>("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("BEST_SELLING");
-  
+
   // API integration
   const [allProducts, setAllProducts] = useState<PerfumeDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Reset filters when gender changes
+
+  // Handle URL params for brand and reset filters when gender changes
   useEffect(() => {
-    setSelectedBrands([]);
+    const brandParam = searchParams.get("brand");
+    if (brandParam) {
+      setSelectedBrands([brandParam]);
+    } else {
+      setSelectedBrands([]);
+    }
     setPriceFilter("ALL");
-  }, [genderParam]);
-  
+  }, [genderParam, searchParams]);
+
   // Fetch products on mount
   useEffect(() => {
     const fetchProducts = async () => {
@@ -116,13 +128,14 @@ const ProductListPage = () => {
   }, []);
 
   // Filter products by current gender
-  const genderFilteredProducts = useMemo(
-    () => allProducts.filter((p) => p.gender === genderConfig.gender),
-    [allProducts, genderConfig.gender]
-  );
+  const genderFilteredProducts = useMemo(() => {
+    if (genderConfig.gender === "ALL") return allProducts;
+    return allProducts.filter((p) => p.gender === genderConfig.gender);
+  }, [allProducts, genderConfig.gender]);
 
   const allBrands = useMemo(
-    () => Array.from(new Set(genderFilteredProducts.map((p) => p.brand))).sort(),
+    () =>
+      Array.from(new Set(genderFilteredProducts.map((p) => p.brand))).sort(),
     [genderFilteredProducts]
   );
 
@@ -155,7 +168,8 @@ const ProductListPage = () => {
 
       if (sortBy === "PRICE_ASC") return priceA - priceB;
       if (sortBy === "PRICE_DESC") return priceB - priceA;
-      if (sortBy === "NEWEST") return (b.launchYear ?? 0) - (a.launchYear ?? 0);
+      if (sortBy === "NEWEST")
+        return (b.launchYear ?? 0) - (a.launchYear ?? 0);
 
       const ratingA = a.averageRating ?? 0;
       const ratingB = b.averageRating ?? 0;
@@ -180,20 +194,24 @@ const ProductListPage = () => {
 
       <main className="mx-auto max-w-6xl px-4 py-6">
         <nav className="mb-3 text-xs text-slate-500">
-          <Link to="/" className="hover:text-red-600">Trang chủ</Link>
+          <Link to="/" className="hover:text-red-600">
+            Trang chủ
+          </Link>
           <span className="mx-1">/</span>
-          <Link to="/nuoc-hoa/nam" className="hover:text-red-600">Nước hoa</Link>
+          <Link to="/nuoc-hoa/tat-ca" className="hover:text-red-600">
+            Nước hoa
+          </Link>
           <span className="mx-1">/</span>
-          <span className="font-semibold text-slate-800">{genderConfig.breadcrumb}</span>
+          <span className="font-semibold text-slate-800">
+            {genderConfig.breadcrumb}
+          </span>
         </nav>
 
         <section className="mb-6 max-w-3xl text-sm text-slate-600">
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
             {genderConfig.title}
           </h1>
-          <p>
-            {genderConfig.description}
-          </p>
+          <p>{genderConfig.description}</p>
         </section>
 
         <section className="grid gap-6 md:grid-cols-[260px,1fr]">
@@ -285,7 +303,9 @@ const ProductListPage = () => {
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-red-600"></div>
-                  <p className="mt-4 text-sm text-slate-500">Đang tải sản phẩm...</p>
+                  <p className="mt-4 text-sm text-slate-500">
+                    Đang tải sản phẩm...
+                  </p>
                 </div>
               </div>
             )}
@@ -306,13 +326,14 @@ const ProductListPage = () => {
             {/* Content */}
             {!loading && !error && (
               <>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4"
-                >
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">
                       {genderConfig.title}
                     </h2>
-                    <p className="text-xs text-slate-500">{totalCount} kết quả</p>
+                    <p className="text-xs text-slate-500">
+                      {totalCount} kết quả
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-slate-700">

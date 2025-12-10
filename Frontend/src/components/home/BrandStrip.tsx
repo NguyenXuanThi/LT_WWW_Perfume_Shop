@@ -1,19 +1,20 @@
-const brands = [
-  "GUCCI",
-  "DIOR",
-  "YSL",
-  "CHANEL",
-  "GIVENCHY",
-  "ARMANI",
-  "PRADA",
-  "VALENTINO",
-  "LANCOME",
-  "HERMÈS",
-  "BURBERRY",
-  "CHLOÉ",
-];
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getAllBrands } from "@/services/productService";
 
 const BrandStrip = () => {
+  const [brands, setBrands] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      const data = await getAllBrands();
+      setBrands(data);
+    };
+    fetchBrands();
+  }, []);
+
+  if (brands.length === 0) return null;
+
   return (
     <section className="py-10">
       <div className="grid gap-6 md:grid-cols-[1.4fr,1.1fr] md:items-stretch">
@@ -25,13 +26,14 @@ const BrandStrip = () => {
           />
         </div>
         <div className="grid h-full grid-cols-3 gap-4 bg-white px-4 py-6 text-xs text-slate-700 shadow-sm sm:grid-cols-4">
-          {brands.map((b) => (
-            <div
+          {brands.slice(0, 12).map((b) => (
+            <Link
               key={b}
-              className="flex items-center justify-center rounded border border-slate-100 bg-slate-50 px-2 py-3 text-center font-semibold tracking-wide hover:border-slate-300"
+              to={`/nuoc-hoa/tat-ca?brand=${encodeURIComponent(b)}`}
+              className="flex items-center justify-center rounded border border-slate-100 bg-slate-50 px-2 py-3 text-center font-semibold tracking-wide hover:border-slate-300 hover:bg-slate-100 transition-colors"
             >
               <span>{b}</span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

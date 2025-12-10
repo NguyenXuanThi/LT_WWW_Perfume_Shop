@@ -177,6 +177,25 @@ export async function getPerfumeTypes(): Promise<PerfumeTypeInfo[]> {
 }
 
 /**
+ * Get all brands
+ */
+export async function getAllBrands(): Promise<string[]> {
+  try {
+    const response = await axios.get<ApiResponse<string[]>>(
+      `${BASE_URL}/public/nuochoa/thuonghieu`
+    );
+    return response.data.body;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      console.error("Error fetching brands (400): This likely means the backend server hasn't updated to include the new /thuonghieu endpoint. Please RESTART the Spring Boot backend.");
+    } else {
+      console.error("Error fetching brands:", error);
+    }
+    return [];
+  }
+}
+
+/**
  * Search products by keyword
  */
 export async function searchProducts(keyword: string): Promise<PerfumeDetail[]> {
@@ -273,9 +292,6 @@ export async function getFeaturedProducts(): Promise<{
   }
 }
 
-/**
- * Convert gender string to URL-friendly format
- */
 export function genderToUrlParam(gender: string): string {
   switch (gender.toUpperCase()) {
     case "MALE":
