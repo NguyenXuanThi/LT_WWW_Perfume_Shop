@@ -89,12 +89,14 @@ const Header = () => {
           <Link to="/" className="text-red-600">
             Trang chủ
           </Link>
-          <Link to="/nuoc-hoa-nam" className="hover:text-red-600">
+          <Link to="/nuochoa/nam" className="hover:text-red-600">
             Nước hoa nam
           </Link>
           {/* thêm các menu khác sau */}
-          <button className="hover:text-red-600">Nước hoa nữ</button>
-          <button className="hover:text-red-600">Nước hoa Mini</button>
+          <Link to="/nuochoa/nu" className="hover:text-red-600">
+            Nước hoa nữ
+          </Link>
+          <button className="hover:text-red-600">Nước hoa unisex</button>
           <button className="hover:text-red-600">Giftset</button>
           <button className="hover:text-red-600">Thương hiệu</button>
         </nav>

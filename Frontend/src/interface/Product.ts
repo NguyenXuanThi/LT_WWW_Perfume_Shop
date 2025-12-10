@@ -25,7 +25,7 @@ export interface PerfumeBase {
   mainImageFile?: string | null;
   volume: number;
   gender: Gender;
-  type: PerfumeTypeInfo;
+  type: number | PerfumeTypeInfo;
 }
 
 export interface PerfumeDetail extends PerfumeBase {

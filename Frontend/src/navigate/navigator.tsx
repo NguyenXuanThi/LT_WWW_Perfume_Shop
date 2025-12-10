@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "../page/home/HomePage";
-import ProductListPage from "../page/product/ProductListPage";
+import ProductListPage from "../page/product/ProductListPage2";
 import ProductDetailPage from "../page/product/ProductDetailPage";
 import AccountPage from "../page/account/AccountPage";
 import LoginPage from "@/page/auth/LoginPage";
@@ -19,7 +19,7 @@ const Navigator = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/nuoc-hoa-nam" element={<ProductListPage />} />
+      <Route path="/nuochoa/:gender" element={<ProductListPage />} />
       <Route path="/product/:id" element={<ProductDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
