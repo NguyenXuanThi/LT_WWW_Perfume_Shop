@@ -132,6 +132,15 @@ const OrderTable: React.FC<OrderTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* --- PHẦN THÊM MỚI: HIỂN THỊ TỔNG SỐ ĐƠN HÀNG --- */}
+      <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div className="text-sm text-slate-600">
+          Tổng số lượng đơn hàng:{" "}
+          <span className="font-bold text-slate-900">{orders.length}</span>
+        </div>
+      </div>
+      {/* ----------------------------------------------- */}
     </div>
   );
 };

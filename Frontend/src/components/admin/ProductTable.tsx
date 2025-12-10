@@ -6,6 +6,8 @@ interface ProductTableProps {
   loading: boolean;
   onEdit: (id: number) => void;
   onDelete: (id: number, name: string) => void;
+  // Thêm map loại sản phẩm nếu muốn hiển thị tên loại trong component con
+  categoryMap?: Record<number, string>;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -13,6 +15,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
   loading,
   onEdit,
   onDelete,
+  categoryMap = {}, // Mặc định là object rỗng
 }) => {
   const genderMap: Record<string, string> = {
     MALE: "Nam",
@@ -52,13 +55,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 Giá gốc
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Giảm giá
+                Loại
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Đối tượng
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Đánh giá
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Hành động
@@ -76,7 +76,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
                       className="w-12 h-12 rounded object-cover border border-slate-100"
                     />
                     <div>
-                      <div className="text-sm font-medium text-slate-900">
+                      <div
+                        className="text-sm font-medium text-slate-900 line-clamp-1"
+                        title={product.tenSanPham}
+                      >
                         {product.tenSanPham}
                       </div>
                       <div className="text-xs text-slate-500">
@@ -89,39 +92,34 @@ const ProductTable: React.FC<ProductTableProps> = ({
                   {product.thuongHieu || "N/A"}
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                  {product.giaGoc.toLocaleString("vi-VN")}₫
+                  <div className="flex flex-col">
+                    <span>{product.giaGoc.toLocaleString("vi-VN")}₫</span>
+                    {product.khuyenMai > 0 && (
+                      <span className="text-[10px] text-red-600 bg-red-50 px-1 rounded w-fit">
+                        -{product.khuyenMai}%
+                      </span>
+                    )}
+                  </div>
                 </td>
-                <td className="px-6 py-4">
-                  {product.khuyenMai > 0 ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                      -{product.khuyenMai}%
-                    </span>
-                  ) : (
-                    <span className="text-xs text-slate-400">-</span>
-                  )}
+                <td className="px-6 py-4 text-sm text-slate-600">
+                  <span className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium border border-blue-100">
+                    {categoryMap[product.loaiNuocHoa] || "N/A"}
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-slate-600">
                   {genderMap[product.doiTuong]}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1 text-xs">
-                    <span className="text-yellow-500">★</span>
-                    <span className="text-slate-600">
-                      {product.mucDanhGia?.toFixed(1) || "N/A"}
-                    </span>
-                  </div>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => onEdit(product.id)}
-                      className="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800"
+                      className="px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded transition"
                     >
                       Sửa
                     </button>
                     <button
                       onClick={() => onDelete(product.id, product.tenSanPham)}
-                      className="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800"
+                      className="px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition"
                     >
                       Xóa
                     </button>
@@ -131,6 +129,14 @@ const ProductTable: React.FC<ProductTableProps> = ({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* FOOTER HIỂN THỊ SỐ LƯỢNG */}
+      <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div className="text-sm text-slate-600">
+          Tổng số lượng sản phẩm:{" "}
+          <span className="font-bold text-slate-900">{products.length}</span>
+        </div>
       </div>
     </div>
   );

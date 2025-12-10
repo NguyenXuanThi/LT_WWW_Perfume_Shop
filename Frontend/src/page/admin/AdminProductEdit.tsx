@@ -6,22 +6,23 @@ import useProductService, {
   type ProductUpdateRequest,
 } from "@/services/product";
 import useImageService from "@/services/image";
-import useCategoryService from "@/services/category"; // 1. Import Service Category
-import type { Category } from "@/interface/Category"; // 2. Import Interface
+import useCategoryService from "@/services/category";
+import type { Category } from "@/interface/Category";
 
 const AdminProductEdit = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProductById, createProduct, updateProduct } = useProductService();
   const { uploadImage, deleteImage } = useImageService();
-  const { getAllCategories } = useCategoryService(); // 3. Sử dụng hook
+  const { getAllCategories } = useCategoryService();
 
   const isEditMode = !!id && id !== "new";
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  // 4. State lưu danh sách loại nước hoa lấy từ API
   const [categories, setCategories] = useState<Category[]>([]);
+
+  // 1. State lưu lỗi (Key là tên field, Value là thông báo lỗi)
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<ProductCreateRequest>({
     tenSanPham: "",
@@ -31,7 +32,7 @@ const AdminProductEdit = () => {
     hinhAnhChinh: "",
     dungTich: 0,
     doiTuong: "MALE",
-    loaiNuocHoa: 1, // Mặc định ID 1, sẽ update khi load xong danh mục nếu cần
+    loaiNuocHoa: 1,
     chiTietNuocHoa: {
       hinhAnhChiTiet: [],
       xuatXu: "",
@@ -42,21 +43,17 @@ const AdminProductEdit = () => {
     },
   });
 
-  // 5. Load danh sách loại nước hoa ngay khi vào trang
   useEffect(() => {
     const fetchCategories = async () => {
       const { categories } = await getAllCategories();
       setCategories(categories);
-
-      // Nếu là thêm mới và chưa chọn loại nào, set mặc định là loại đầu tiên trong list
       if (!isEditMode && categories.length > 0) {
         setFormData((prev) => ({ ...prev, loaiNuocHoa: categories[0].id }));
       }
     };
     fetchCategories();
-  }, []); // Chạy 1 lần
+  }, []);
 
-  // Load thông tin sản phẩm (nếu là sửa)
   useEffect(() => {
     if (isEditMode) loadProduct();
   }, [id]);
@@ -74,7 +71,7 @@ const AdminProductEdit = () => {
           hinhAnhChinh: product.hinhAnhChinh || "",
           dungTich: product.dungTich,
           doiTuong: product.doiTuong,
-          loaiNuocHoa: product.loaiNuocHoa, // Backend trả về ID loại
+          loaiNuocHoa: product.loaiNuocHoa,
           chiTietNuocHoa: {
             hinhAnhChiTiet: product.chiTietNuocHoa?.hinhAnhChiTiet || [],
             xuatXu: product.chiTietNuocHoa?.xuatXu || "",
@@ -93,7 +90,6 @@ const AdminProductEdit = () => {
     }
   };
 
-  // --- HÀM XỬ LÝ ẢNH (Giữ nguyên như cũ) ---
   const getDisplayUrl = (combinedString?: string) =>
     combinedString ? combinedString.split("?")[0] : "";
   const getPublicId = (combinedString?: string) =>
@@ -113,6 +109,8 @@ const AdminProductEdit = () => {
           if (oldId) await deleteImage(oldId);
         }
         setFormData((prev) => ({ ...prev, hinhAnhChinh: url }));
+        // Xóa lỗi nếu có khi đã upload ảnh
+        setErrors((prev) => ({ ...prev, hinhAnhChinh: "" }));
       }
       setUploading(false);
     }
@@ -156,10 +154,47 @@ const AdminProductEdit = () => {
     const publicId = getPublicId(imageToRemove);
     if (publicId) await deleteImage(publicId);
   };
-  // --- KẾT THÚC XỬ LÝ ẢNH ---
+
+  // 2. Hàm Validate dữ liệu
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.tenSanPham.trim()) {
+      newErrors.tenSanPham = "Tên sản phẩm không được để trống.";
+    } else if (formData.tenSanPham.length < 5) {
+      newErrors.tenSanPham = "Tên sản phẩm phải có ít nhất 5 ký tự.";
+    }
+
+    if (!formData.hinhAnhChinh) {
+      newErrors.hinhAnhChinh = "Vui lòng tải lên ảnh đại diện sản phẩm.";
+    }
+
+    if (formData.giaGoc <= 1000) {
+      newErrors.giaGoc = "Giá gốc phải lớn hơn 1.000 VNĐ.";
+    }
+
+    if (formData.khuyenMai < 0 || formData.khuyenMai > 100) {
+      newErrors.khuyenMai = "Giảm giá phải từ 0% đến 100%.";
+    }
+
+    if (formData.dungTich <= 0) {
+      newErrors.dungTich = "Dung tích phải lớn hơn 0.";
+    }
+
+    setErrors(newErrors);
+    // Trả về true nếu không có lỗi
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Gọi hàm validate trước khi gửi
+    if (!validateForm()) {
+      alert("Vui lòng kiểm tra lại các thông tin báo lỗi.");
+      return;
+    }
+
     setLoading(true);
     try {
       if (isEditMode) {
@@ -192,6 +227,10 @@ const AdminProductEdit = () => {
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Xóa lỗi ngay khi người dùng bắt đầu nhập lại
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleDetailChange = (field: string, value: any) => {
@@ -199,7 +238,18 @@ const AdminProductEdit = () => {
       ...prev,
       chiTietNuocHoa: { ...prev.chiTietNuocHoa, [field]: value },
     }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
+
+  // Helper để render style lỗi cho input
+  const getInputClass = (fieldName: string) =>
+    `w-full px-3 py-2 border rounded-md outline-none transition-colors ${
+      errors[fieldName]
+        ? "border-red-500 bg-red-50 focus:border-red-600"
+        : "border-slate-300 focus:ring-2 focus:ring-red-500"
+    }`;
 
   return (
     <AdminLayout
@@ -217,9 +267,15 @@ const AdminProductEdit = () => {
             {/* Cột trái: Ảnh đại diện */}
             <div className="md:col-span-1">
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Ảnh đại diện
+                Ảnh đại diện <span className="text-red-500">*</span>
               </label>
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-2 h-64 flex flex-col items-center justify-center bg-slate-50 relative group hover:border-red-400 transition-colors">
+              <div
+                className={`border-2 border-dashed rounded-lg p-2 h-64 flex flex-col items-center justify-center bg-slate-50 relative group transition-colors ${
+                  errors.hinhAnhChinh
+                    ? "border-red-500 bg-red-50"
+                    : "border-slate-300 hover:border-red-400"
+                }`}
+              >
                 {formData.hinhAnhChinh ? (
                   <img
                     src={getDisplayUrl(formData.hinhAnhChinh)}
@@ -253,21 +309,32 @@ const AdminProductEdit = () => {
                   </div>
                 )}
               </div>
+              {/* Hiển thị lỗi ảnh */}
+              {errors.hinhAnhChinh && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.hinhAnhChinh}
+                </p>
+              )}
             </div>
 
             {/* Cột phải: Form nhập liệu */}
             <div className="md:col-span-2 grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Tên sản phẩm *
+                  Tên sản phẩm <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  required
                   value={formData.tenSanPham}
                   onChange={(e) => handleChange("tenSanPham", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-red-500 outline-none"
+                  className={getInputClass("tenSanPham")}
+                  placeholder="VD: Nước hoa Chanel No.5"
                 />
+                {errors.tenSanPham && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.tenSanPham}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -278,22 +345,20 @@ const AdminProductEdit = () => {
                   type="text"
                   value={formData.thuongHieu}
                   onChange={(e) => handleChange("thuongHieu", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md outline-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
 
-              {/* 6. PHẦN QUAN TRỌNG: Dropdown Loại nước hoa ĐỘNG */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Loại nước hoa *
+                  Loại nước hoa <span className="text-red-500">*</span>
                 </label>
                 <select
-                  required
                   value={formData.loaiNuocHoa}
                   onChange={(e) =>
                     handleChange("loaiNuocHoa", Number(e.target.value))
                   }
-                  className="w-full px-3 py-2 border rounded-md outline-none bg-white cursor-pointer"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none bg-white cursor-pointer focus:ring-2 focus:ring-red-500"
                 >
                   {categories.length === 0 && (
                     <option value="">Đang tải danh mục...</option>
@@ -308,19 +373,22 @@ const AdminProductEdit = () => {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Giá gốc (VNĐ) *
+                  Giá gốc (VNĐ) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  required
                   min="0"
                   value={formData.giaGoc}
                   onChange={(e) =>
                     handleChange("giaGoc", Number(e.target.value))
                   }
-                  className="w-full px-3 py-2 border rounded-md outline-none"
+                  className={getInputClass("giaGoc")}
                 />
+                {errors.giaGoc && (
+                  <p className="text-red-500 text-xs mt-1">{errors.giaGoc}</p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Giảm giá (%)
@@ -333,34 +401,41 @@ const AdminProductEdit = () => {
                   onChange={(e) =>
                     handleChange("khuyenMai", Number(e.target.value))
                   }
-                  className="w-full px-3 py-2 border rounded-md outline-none"
+                  className={getInputClass("khuyenMai")}
                 />
+                {errors.khuyenMai && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.khuyenMai}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Dung tích (ml)
+                  Dung tích (ml) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  required
                   min="0"
                   value={formData.dungTich}
                   onChange={(e) =>
                     handleChange("dungTich", Number(e.target.value))
                   }
-                  className="w-full px-3 py-2 border rounded-md outline-none"
+                  className={getInputClass("dungTich")}
                 />
+                {errors.dungTich && (
+                  <p className="text-red-500 text-xs mt-1">{errors.dungTich}</p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Đối tượng
                 </label>
                 <select
-                  required
                   value={formData.doiTuong}
                   onChange={(e) => handleChange("doiTuong", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md outline-none bg-white"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none bg-white focus:ring-2 focus:ring-red-500"
                 >
                   <option value="MALE">Nam</option>
                   <option value="FEMALE">Nữ</option>
@@ -371,7 +446,7 @@ const AdminProductEdit = () => {
           </div>
         </div>
 
-        {/* BLOCK 2 & 3: GIỮ NGUYÊN CODE CŨ */}
+        {/* --- CÁC PHẦN DƯỚI GIỮ NGUYÊN HOẶC CHỈ SỬA STYLE --- */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
           <h2 className="text-lg font-bold text-slate-800 mb-4 border-b pb-2">
             Album ảnh chi tiết
@@ -427,8 +502,12 @@ const AdminProductEdit = () => {
                 type="text"
                 value={formData.chiTietNuocHoa.xuatXu}
                 onChange={(e) => handleDetailChange("xuatXu", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md outline-none"
+                className={getInputClass("xuatXu")}
+                placeholder="VD: Pháp, Ý..."
               />
+              {errors.xuatXu && (
+                <p className="text-red-500 text-xs mt-1">{errors.xuatXu}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -440,7 +519,7 @@ const AdminProductEdit = () => {
                 onChange={(e) =>
                   handleDetailChange("namPhatHanh", Number(e.target.value))
                 }
-                className="w-full px-3 py-2 border rounded-md outline-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
             <div>
@@ -453,7 +532,7 @@ const AdminProductEdit = () => {
                 onChange={(e) =>
                   handleDetailChange("nhomHuong", e.target.value)
                 }
-                className="w-full px-3 py-2 border rounded-md outline-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
             <div>
@@ -466,7 +545,7 @@ const AdminProductEdit = () => {
                 onChange={(e) =>
                   handleDetailChange("phongCachMuiHuong", e.target.value)
                 }
-                className="w-full px-3 py-2 border rounded-md outline-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
             <div className="md:col-span-2">
@@ -477,7 +556,7 @@ const AdminProductEdit = () => {
                 rows={5}
                 value={formData.chiTietNuocHoa.moTa}
                 onChange={(e) => handleDetailChange("moTa", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md outline-none resize-y"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md outline-none resize-y focus:ring-2 focus:ring-red-500"
               />
             </div>
           </div>
