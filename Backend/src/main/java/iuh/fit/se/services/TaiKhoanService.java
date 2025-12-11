@@ -1,5 +1,6 @@
 package iuh.fit.se.services;
 
+import iuh.fit.se.dtos.requests.taiKhoan.ChangeVaiTroRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanCreateRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanUpdateRequest;
 import iuh.fit.se.dtos.responses.TaiKhoanResponse;
@@ -15,4 +16,5 @@ public interface TaiKhoanService {
     boolean update(TaiKhoanUpdateRequest request);
     Page<TaiKhoanResponse> getTaiKhoanPage(int page, String searchKey, String roleName, Boolean status);
     boolean changeActive(String email, boolean active);
+    boolean changeVaiTro(ChangeVaiTroRequest request);
 }

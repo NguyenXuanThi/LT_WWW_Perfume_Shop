@@ -39,3 +39,9 @@ export interface UpdateUser {
     newPassword: string;
     confirmPassword: string;
 }
+
+export interface ChangeVaiTro {
+    emailNeedChange: string;
+    emailExecute: String;
+    vaiTro: TenVaiTro;
+}

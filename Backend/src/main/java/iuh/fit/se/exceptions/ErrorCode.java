@@ -12,6 +12,7 @@ public enum ErrorCode {
     CURRENT_PASSWORD_DOES_NOT_MATCH("Current Password does not match", HttpStatus.BAD_REQUEST),
     CONFIRM_PASSWORD_DOES_NOT_MATCH("Confirm Password does not match", HttpStatus.BAD_REQUEST),
     CAN_NOT_CHANGE_ACTIVE_ADMIN("Can not change active admin", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS("Unauthorized access", HttpStatus.UNAUTHORIZED),
     ;
 
     private final String message;

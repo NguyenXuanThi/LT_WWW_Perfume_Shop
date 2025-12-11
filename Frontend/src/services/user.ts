@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { useAxios } from "./http"
 import type { ApiResponse, PageUser } from "@/interface/Response"
-import type { UserError, UpdateUser, User, TenVaiTro } from "@/interface/User"
+import type { UserError, UpdateUser, User, TenVaiTro, ChangeVaiTro } from "@/interface/User"
 // import { useStore } from "@/store"
 
 export default function useUserService() {
@@ -59,7 +59,6 @@ export default function useUserService() {
 
         try {
             const res = await axiosPrivate.get<ApiResponse<boolean>>(`/users/manage/change_active/${email}?active=${active}`)
-            console.log(12345)
             const data = res.data
             success = data.body as boolean
         } catch (error) {
@@ -71,5 +70,30 @@ export default function useUserService() {
         return { success, message, errors }
     }, [])
 
-    return { update, getTaiKhoanPage, changeActive }
+    const changeVaiTro = useCallback(async (request: ChangeVaiTro) => {
+        let success = false
+        let message = ""
+        let errors = undefined as undefined | UserError
+
+        if (request.emailNeedChange === "admin@shop.com") {
+            return { success: false, message: "Không thể thay đổi trạng thái của tài khoản này.", errors: undefined }
+        }
+        if (request.emailExecute !== "admin@shop.com") {
+            return { success: false, message: "Không có quyền để thay đổi vai trò.", errors: undefined }
+        }
+
+        try {
+            const res = await axiosPrivate.post<ApiResponse<boolean>>(`/users/manage/change_vaitro`, request)
+            const data = res.data
+            success = data.body as boolean
+        } catch (error) {
+            const data = error as ApiResponse<boolean>
+            message = data.message ?? "Lỗi không xác định từ Server."
+            errors = data.errors
+        }
+
+        return { success, message, errors }
+    }, [])
+
+    return { update, getTaiKhoanPage, changeActive, changeVaiTro }
 }
