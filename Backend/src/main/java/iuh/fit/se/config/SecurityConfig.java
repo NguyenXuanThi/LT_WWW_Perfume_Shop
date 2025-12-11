@@ -41,26 +41,24 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                //  Spring Security không tạo HttpSession
-                //  Không lưu authentication trong server
-                //  Không có SecurityContext trong session
-                //  => Server hoàn toàn không giữ trạng thái đăng nhập của client.
+                // Spring Security không tạo HttpSession
+                // Không lưu authentication trong server
+                // Không có SecurityContext trong session
+                // => Server hoàn toàn không giữ trạng thái đăng nhập của client.
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/nuochoa/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> {
                             jwt.decoder(jwtDecoder);
                             jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
-                        })
-                );
+                        }));
         return http.build();
     }
 
@@ -78,10 +76,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOriginPatterns(List.of("*"));
+        cors.setAllowedOrigins(List.of("*"));
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("*"));
-        cors.setAllowCredentials(true); // THÊM dòng này
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);

@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import ProductCard, { type ProductCardProps } from "../product/ProductCard";
 
 type ProductShelfProps = {
@@ -6,6 +7,7 @@ type ProductShelfProps = {
   subtitle?: string;
   label?: string;
   products: ProductCardProps[];
+  seeAllLink?: string; // <-- link tới category (vd: /nuoc-hoa-nam)
 };
 
 const ProductShelf = ({
@@ -13,6 +15,7 @@ const ProductShelf = ({
   subtitle,
   label,
   products,
+  seeAllLink,
 }: ProductShelfProps) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -28,6 +31,7 @@ const ProductShelf = ({
 
   return (
     <section className="py-8">
+      {/* Header của section */}
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
           {label && (
@@ -38,10 +42,18 @@ const ProductShelf = ({
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
           {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
         </div>
-        <button className="text-[11px] font-semibold uppercase tracking-wide text-slate-600 hover:text-red-600">
-          Xem tất cả →
-        </button>
+
+        {seeAllLink && (
+          <Link
+            to={seeAllLink}
+            className="text-[11px] font-semibold uppercase tracking-wide text-slate-600 hover:text-red-600"
+          >
+            Xem tất cả →
+          </Link>
+        )}
       </div>
+
+      {/* Dãy sản phẩm scroll ngang */}
       <div className="relative">
         {/* nút trái */}
         <button
@@ -55,12 +67,27 @@ const ProductShelf = ({
           ref={scrollRef}
           className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {products.map((p, idx) => (
-            <div key={idx} className="w-40 flex-shrink-0 sm:w-48 md:w-52">
-              <ProductCard {...p} />
-            </div>
-          ))}
+          {products.map((p) => {
+            const card = <ProductCard {...p} />;
+
+            // Nếu có id thì wrap bằng Link tới /product/:id
+            return p.id ? (
+              <Link
+                key={p.id}
+                to={`/product/${p.id}`}
+                className="w-40 flex-shrink-0 sm:w-48 md:w-52"
+              >
+                {card}
+              </Link>
+            ) : (
+              <div key={p.name} className="w-40 flex-shrink-0 sm:w-48 md:w-52">
+                {card}
+              </div>
+            );
+          })}
         </div>
+
+        {/* nút phải */}
         <button
           onClick={() => scroll("right")}
           className="absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-white/90 p-1 shadow md:inline-flex"
