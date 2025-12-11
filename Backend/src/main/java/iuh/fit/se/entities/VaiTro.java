@@ -19,7 +19,7 @@ public class VaiTro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private TenVaiTro tenVaiTro;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "vaiTro")
     @ToString.Exclude

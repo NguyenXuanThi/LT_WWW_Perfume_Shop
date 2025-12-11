@@ -1,5 +1,6 @@
 package iuh.fit.se.services.impl;
 
+import iuh.fit.se.dtos.requests.taiKhoan.ChangeVaiTroRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanCreateRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanUpdateRequest;
 import iuh.fit.se.dtos.responses.TaiKhoanResponse;
@@ -122,6 +123,17 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         }
 
         taiKhoan.setActive(active);
+        taiKhoanRepository.save(taiKhoan);
+        return true;
+    }
+
+    @Override
+    public boolean changeVaiTro(ChangeVaiTroRequest request) {
+        TaiKhoan taiKhoan = findByEmailRaw(request.getEmailNeedChange());
+        if (!Objects.equals(request.getEmailExecute(), "admin@shop.com")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        taiKhoan.setVaiTro(vaiTroService.findByTenVaiTroRaw(request.getVaiTro()));
         taiKhoanRepository.save(taiKhoan);
         return true;
     }
