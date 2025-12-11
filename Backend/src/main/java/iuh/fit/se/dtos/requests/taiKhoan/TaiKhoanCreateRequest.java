@@ -25,7 +25,8 @@ public class TaiKhoanCreateRequest {
     @Email(message = "Phải đúng định dạng email")
     private String email;
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$", message = "Mật khẩu phải trên 8 ký tự, có chữ hoa, thường và số")
-    private String password;
+    private String newPassword;
+    private String confirmPassword;
     @Length(max = 255)
     private String diaChi;
 }

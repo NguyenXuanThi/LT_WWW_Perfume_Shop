@@ -1,5 +1,6 @@
 package iuh.fit.se.services.impl;
 
+import iuh.fit.se.dtos.requests.taiKhoan.ChangeVaiTroRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanCreateRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanUpdateRequest;
 import iuh.fit.se.dtos.responses.TaiKhoanResponse;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -65,8 +67,9 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         Validator validator = factory.getValidator();
         factory.close();
         Set<ConstraintViolation<TaiKhoanCreateRequest>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            throw new PostException(violations);
+        boolean matchPassword = Objects.equals(request.getNewPassword(), request.getConfirmPassword());
+        if (!violations.isEmpty() || !matchPassword) {
+            throw new PostException(violations, (!matchPassword)? Map.of("confirmPassword", "password xác nhận không trùng khớp"): null);
         }
 
         TaiKhoan taiKhoan = taiKhoanMapper.toTaiKhoan(request);
@@ -122,6 +125,17 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         }
 
         taiKhoan.setActive(active);
+        taiKhoanRepository.save(taiKhoan);
+        return true;
+    }
+
+    @Override
+    public boolean changeVaiTro(ChangeVaiTroRequest request) {
+        TaiKhoan taiKhoan = findByEmailRaw(request.getEmailNeedChange());
+        if (!Objects.equals(request.getEmailExecute(), "admin@shop.com")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        taiKhoan.setVaiTro(vaiTroService.findByTenVaiTroRaw(request.getVaiTro()));
         taiKhoanRepository.save(taiKhoan);
         return true;
     }

@@ -16,7 +16,8 @@ export interface NewUser {
     ngaySinh: string;
     soDienThoai: string;
     email: string;
-    password: string;
+    newPassword: string;
+    confirmPassword: string;
     diaChi: string;
 }
 
@@ -25,7 +26,8 @@ export interface UserError {
     ngaySinh: string;
     soDienThoai: string;
     email: string;
-    password: string;
+    newPassword: string;
+    confirmPassword: string;
     diaChi: string;
 }
 
@@ -38,4 +40,10 @@ export interface UpdateUser {
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
+}
+
+export interface ChangeVaiTro {
+    emailNeedChange: string;
+    emailExecute: String;
+    vaiTro: TenVaiTro;
 }

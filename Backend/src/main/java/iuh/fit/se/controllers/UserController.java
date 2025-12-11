@@ -1,6 +1,7 @@
 package iuh.fit.se.controllers;
 
 import iuh.fit.se.dtos.ApiResponse;
+import iuh.fit.se.dtos.requests.taiKhoan.ChangeVaiTroRequest;
 import iuh.fit.se.dtos.requests.taiKhoan.TaiKhoanUpdateRequest;
 import iuh.fit.se.dtos.responses.TaiKhoanResponse;
 import iuh.fit.se.services.TaiKhoanService;
@@ -46,6 +47,14 @@ public class UserController {
     public ApiResponse<Boolean> changeActive(@PathVariable String email, @RequestParam boolean active) {
         return ApiResponse.<Boolean>builder()
                 .body(taiKhoanService.changeActive(email, active))
+                .build();
+    }
+
+    @PostMapping("/manage/change_vaitro")
+    @PreAuthorize("hasAuthority('Admin')")
+    public ApiResponse<Boolean> changeVaiTro(@RequestBody ChangeVaiTroRequest request) {
+        return ApiResponse.<Boolean>builder()
+                .body(taiKhoanService.changeVaiTro(request))
                 .build();
     }
 }

@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface TaiKhoanMapper {
     @Mapping(target = "active", constant = "true")
+    @Mapping(source = "newPassword", target = "password")
     TaiKhoan toTaiKhoan(TaiKhoanCreateRequest request);
     @Mapping(source = "newPassword", target = "password")
     void updateTaiKhoan(TaiKhoanUpdateRequest request, @MappingTarget TaiKhoan taiKhoan);
