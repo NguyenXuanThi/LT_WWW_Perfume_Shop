@@ -119,7 +119,7 @@ export default function CartPage() {
 
                                     {/* Hình ảnh */}
                                     <img
-                                        src={`/images/${item.image}`}
+                                        src={`${item.image}`}
                                         alt={item.name}
                                         className="h-24 w-24 rounded object-cover"
                                     />

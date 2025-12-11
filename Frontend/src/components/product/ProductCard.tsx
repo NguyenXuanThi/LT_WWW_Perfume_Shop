@@ -50,7 +50,7 @@ const ProductCard = ({
       brand,
       price: basePrice || price, // Use basePrice if available
       discountPercent,
-      image: imageFilename,
+      image: imageUrl,
       volume: volumeNumber,
     });
 
