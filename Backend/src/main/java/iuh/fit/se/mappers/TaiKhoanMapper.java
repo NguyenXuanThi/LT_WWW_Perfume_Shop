@@ -14,6 +14,7 @@ public interface TaiKhoanMapper {
     TaiKhoan toTaiKhoan(TaiKhoanCreateRequest request);
     @Mapping(source = "newPassword", target = "password")
     void updateTaiKhoan(TaiKhoanUpdateRequest request, @MappingTarget TaiKhoan taiKhoan);
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "vaiTro.tenVaiTro", target = "vaiTro")
     TaiKhoanResponse toTaiKhoanResponse(TaiKhoan TaiKhoan);
 }

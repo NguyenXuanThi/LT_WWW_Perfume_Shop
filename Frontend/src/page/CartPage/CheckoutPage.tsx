@@ -4,19 +4,55 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { useCart } from "../../components/cart/CartContext";
 import { useStore } from "@/store";
+import axios from "axios";
+
+// API Configuration
+const API_BASE_URL = "http://localhost:8080/api";
+
+const axiosPublic = axios.create({
+    baseURL: API_BASE_URL,
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 10000,
+});
+
+interface DonHangRequest {
+    ngayDat: string; // YYYY-MM-DD
+    thanhTien: number;
+    phuongThucThanhToan: string;
+    diaChiGiaoHang: string;
+    soDienThoai: string;
+    ghiChu?: string;
+    thueVAT: number;
+    phiVanChuyen: number;
+    taiKhoan: number; // Chỉ gửi ID
+    chiTietDonHangs: ChiTietDonHangRequest[];
+}
+
+interface ChiTietDonHangRequest {
+    nuocHoa: number; // Chỉ gửi ID
+    soLuong: number;
+    donGia: number;
+}
 
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const { selectedItems, selectedTotal, clearCart } = useCart();
     const { user } = useStore();
 
-    // Redirect nếu chưa đăng nhập
+    // Redirect if not logged in
     useEffect(() => {
         if (!user) {
             alert("Vui lòng đăng nhập để thanh toán");
             navigate("/login");
         }
     }, [user, navigate]);
+
+    // Redirect if no items selected
+    useEffect(() => {
+        if (selectedItems.length === 0 && user) {
+            navigate("/cart");
+        }
+    }, [selectedItems, user, navigate]);
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -29,7 +65,7 @@ export default function CheckoutPage() {
         note: "",
     });
 
-    // Auto-fill thông tin từ user đã đăng nhập
+    // Auto-fill from user data
     useEffect(() => {
         if (user) {
             setFormData({
@@ -47,6 +83,7 @@ export default function CheckoutPage() {
 
     const [showQR, setShowQR] = useState(false);
     const [isPaying, setIsPaying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -57,9 +94,23 @@ export default function CheckoutPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate
+        // Validation
         if (!formData.fullName || !formData.phone || !formData.email || !formData.address) {
             alert("Vui lòng điền đầy đủ thông tin bắt buộc");
+            return;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            alert("Email không hợp lệ");
+            return;
+        }
+
+        // Phone validation
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            alert("Số điện thoại phải có 10 chữ số");
             return;
         }
 
@@ -67,42 +118,175 @@ export default function CheckoutPage() {
     };
 
     const handlePaymentSuccess = async () => {
+        if (!user) {
+            alert("Vui lòng đăng nhập để thanh toán");
+            navigate("/login");
+            return;
+        }
+
         setIsPaying(true);
+        setError(null);
 
-        // Giả lập thanh toán
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        // Gửi email (giả lập)
         try {
-            // Ở đây bạn sẽ gọi API backend để gửi email
-            console.log("Sending order confirmation email to:", formData.email);
-            console.log("Order details:", {
-                customer: formData,
-                items: selectedItems,
-                total: selectedTotal,
+            // Build full address
+            const fullAddress = [
+                formData.address,
+                formData.ward,
+                formData.district,
+                formData.city
+            ].filter(Boolean).join(", ");
+
+            // Calculate totals
+            const thueVAT = 0; // 0% VAT
+            const phiVanChuyen = 0; // Free shipping
+            const tongTienHang = selectedItems.reduce((sum, item) => {
+                const finalPrice = item.price * (1 - item.discountPercent / 100);
+                return sum + (finalPrice * item.quantity);
+            }, 0);
+            const thanhTien = tongTienHang + thueVAT + phiVanChuyen;
+
+            // Prepare chi tiet don hang
+            const chiTietDonHangs: ChiTietDonHangRequest[] = selectedItems.map(item => {
+                const donGia = item.price * (1 - item.discountPercent / 100);
+
+                return {
+                    nuocHoa: item.id, // Chỉ gửi ID
+                    soLuong: item.quantity,
+                    donGia: donGia,
+                };
             });
 
-            // Xóa giỏ hàng
+            // Prepare order data
+            const donHangRequest: DonHangRequest = {
+                ngayDat: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                thanhTien: thanhTien,
+                phuongThucThanhToan: "QR Code",
+                diaChiGiaoHang: fullAddress,
+                soDienThoai: formData.phone,
+                ghiChu: formData.note || undefined,
+                thueVAT: thueVAT,
+                phiVanChuyen: phiVanChuyen,
+                taiKhoan: user.id, // Chỉ gửi ID
+                chiTietDonHangs: chiTietDonHangs
+            };
+
+            console.log("Creating order:", donHangRequest);
+
+            // Call API to create order using axios
+            const response = await axiosPublic.post('/test/donHang', donHangRequest);
+
+            const createdOrder = response.data;
+            console.log("Order created successfully:", createdOrder);
+
+            try {
+                const emailData = {
+                    to: formData.email,
+                    subject: `Xác nhận đơn hàng #${createdOrder.id || 'DH' + Date.now()}`,
+                    body: `
+            <h2>Cảm ơn bạn đã đặt hàng tại Perfume Boutique!</h2>
+            <p>Xin chào <strong>${formData.fullName}</strong>,</p>
+            <p>Đơn hàng của bạn đã được đặt thành công.</p>
+            
+            <h3>Thông tin đơn hàng:</h3>
+            <ul>
+              <li>Mã đơn hàng: <strong>#${createdOrder.id || 'DH' + Date.now()}</strong></li>
+              <li>Ngày đặt: <strong>${new Date().toLocaleDateString('vi-VN')}</strong></li>
+              <li>Tổng tiền: <strong>${thanhTien.toLocaleString('vi-VN')}₫</strong></li>
+              <li>Địa chỉ giao hàng: <strong>${fullAddress}</strong></li>
+            </ul>
+            
+            <h3>Sản phẩm:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #f5f5f5;">
+                  <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Sản phẩm</th>
+                  <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Số lượng</th>
+                  <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Đơn giá</th>
+                  <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${selectedItems.map(item => {
+                        const finalPrice = item.price * (1 - item.discountPercent / 100);
+                        const itemTotal = finalPrice * item.quantity;
+                        return `
+                    <tr>
+                      <td style="padding: 8px; border: 1px solid #ddd;">${item.name} - ${item.brand}</td>
+                      <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${item.quantity}</td>
+                      <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${finalPrice.toLocaleString('vi-VN')}₫</td>
+                      <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${itemTotal.toLocaleString('vi-VN')}₫</td>
+                    </tr>
+                  `;
+                    }).join('')}
+              </tbody>
+            </table>
+            
+            <p style="margin-top: 20px;">
+              Đơn hàng sẽ được xử lý trong vòng 24h và giao đến bạn trong 2-3 ngày làm việc.
+            </p>
+            
+            <p>Trân trọng,<br/>Perfume Boutique Team</p>
+          `
+                };
+
+                // Gọi API gửi email (cần tạo endpoint này ở backend)
+                await axiosPublic.post('/email/send', emailData);
+
+                console.log("Email notification sent successfully");
+            } catch (emailError) {
+                console.error("Error sending email:", emailError);
+                // Không block flow nếu email fail
+            }
+
+            // Clear cart after successful order
             clearCart();
 
-            // Chuyển sang trang thành công
+            // Navigate to success page
             navigate("/order-success", {
                 state: {
                     orderInfo: {
-                        ...formData,
+                        orderId: createdOrder.id || `DH${Date.now()}`,
+                        fullName: formData.fullName,
+                        phone: formData.phone,
+                        email: formData.email,
+                        address: fullAddress,
+                        city: formData.city,
+                        district: formData.district,
+                        ward: formData.ward,
                         items: selectedItems,
-                        total: selectedTotal,
-                        orderId: `DH${Date.now()}`,
+                        total: thanhTien,
                     },
                 },
             });
         } catch (error) {
-            console.error("Error:", error);
-            alert("Có lỗi xảy ra, vui lòng thử lại");
+            console.error("Error creating order:", error);
+
+            let errorMessage = "Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.";
+
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    // Server responded with error
+                    errorMessage = error.response.data?.message || errorMessage;
+                    console.error("Error response:", error.response.data);
+                } else if (error.request) {
+                    // Request made but no response
+                    errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
+                }
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            setError(errorMessage);
+            alert(errorMessage);
         } finally {
             setIsPaying(false);
         }
     };
+
+    // Don't render if not logged in (will redirect)
+    if (!user) {
+        return null;
+    }
 
     if (selectedItems.length === 0) {
         return (
@@ -167,6 +351,7 @@ export default function CheckoutPage() {
                                             value={formData.phone}
                                             onChange={handleChange}
                                             required
+                                            pattern="[0-9]{10}"
                                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
                                             placeholder="0901234567"
                                         />
@@ -319,9 +504,10 @@ export default function CheckoutPage() {
 
                         <button
                             type="submit"
-                            className="w-full rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700"
+                            disabled={isPaying}
+                            className="w-full rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
                         >
-                            Đặt hàng
+                            {isPaying ? "Đang xử lý..." : "Đặt hàng"}
                         </button>
 
                         <p className="text-center text-xs text-slate-500">
@@ -330,6 +516,12 @@ export default function CheckoutPage() {
                         </p>
                     </aside>
                 </form>
+
+                {error && (
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="text-sm text-red-800">{error}</p>
+                    </div>
+                )}
             </main>
 
             {/* Modal QR Payment */}
@@ -338,7 +530,8 @@ export default function CheckoutPage() {
                     <div className="relative w-full max-w-md rounded-lg bg-white p-6">
                         <button
                             onClick={() => setShowQR(false)}
-                            className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+                            disabled={isPaying}
+                            className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed"
                         >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -380,7 +573,7 @@ export default function CheckoutPage() {
                         <button
                             onClick={handlePaymentSuccess}
                             disabled={isPaying}
-                            className="mt-6 w-full rounded-full bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:bg-slate-300"
+                            className="mt-6 w-full rounded-full bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
                         >
                             {isPaying ? "Đang xử lý..." : "Xác nhận đã thanh toán"}
                         </button>

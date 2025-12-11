@@ -9,7 +9,9 @@ import AdminAuthenticate from "@/page/admin/AdminAuthenticate";
 import AdminDashboard from "@/page/admin/AdminDashboard";
 import AccountAuthenticate from "@/page/account/AccountAuthenticate";
 import AdminUserManagement from "@/page/admin/AdminUserManagement";
-
+import CartPage from "@/page/CartPage/CartPage.tsx";
+import CheckoutPage from "@/page/CartPage/CheckoutPage.tsx";
+import OrderSuccessPage from "@/page/CartPage/OrderSuccessPage.tsx";
 const Navigator = () => {
   return (
     <Routes>
@@ -17,6 +19,9 @@ const Navigator = () => {
       {/* Dynamic gender routes for perfume listing */}
       <Route path="/nuoc-hoa/:gender" element={<ProductListPage />} />
       <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-success" element={<OrderSuccessPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
       <Route element={<AdminAuthenticate/>}>

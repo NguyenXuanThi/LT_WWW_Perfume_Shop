@@ -1,6 +1,7 @@
 export type TenVaiTro = "Customer" | "Admin"
 
 export interface User {
+    id: number;
     hoTen: string;
     ngaySinh: string;
     soDienThoai: string;

@@ -28,7 +28,8 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("com.cloudinary:cloudinary-http44:1.39.0")
-
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail
+    implementation("org.springframework.boot:spring-boot-starter-mail:4.0.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
