@@ -1,16 +1,20 @@
 package iuh.fit.se.controllers;
 
 import iuh.fit.se.dtos.ApiResponse;
+import iuh.fit.se.dtos.requests.donHang.DonHangCreateRequest;
 import iuh.fit.se.dtos.responses.DonHangResponse;
 import iuh.fit.se.entities.DonHang;
 import iuh.fit.se.enums.TrangThaiDonHang;
 import iuh.fit.se.services.DonHangService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/donhang")
@@ -19,18 +23,19 @@ public class UserDonHangController {
 
     private final DonHangService donHangService;
 
-    @GetMapping
-    public ApiResponse<List<DonHangResponse>> getAllDonHang(
-            @RequestParam(required = false) TrangThaiDonHang trangThai,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) Integer taiKhoanId
-    ) {
-        List<DonHangResponse> data = donHangService.findAll(trangThai, startDate, endDate, taiKhoanId);
-        return ApiResponse.<List<DonHangResponse>>builder()
-                .body(data)
+    @GetMapping("/me")
+    public ApiResponse<List<DonHang>> getMyOrders(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        List<DonHang> orders = donHangService.findByEmail(email);
+
+        return ApiResponse.<List<DonHang>>builder()
+                .body(orders)
+                .message("Lấy danh sách đơn hàng thành công")
                 .build();
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<DonHangResponse> getDonHangById(@PathVariable int id) {
@@ -42,9 +47,16 @@ public class UserDonHangController {
 
     // TẠO ĐƠN HÀNG (USER)
     @PostMapping
-    public DonHang createDonHang(@RequestBody DonHang donHang) {
-        donHang.setTrangThaiDonHang(TrangThaiDonHang.CHUA_DUOC_GIAO);
-        return donHangService.create(donHang);
+    public ApiResponse<DonHang> createDonHang(
+            @RequestBody DonHangCreateRequest request,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        DonHang donHang = donHangService.createFromRequest(request, email);
+        return ApiResponse.<DonHang>builder()
+                .body(donHang)
+                .message("Đặt hàng thành công")
+                .build();
     }
 
     // XÓA ĐƠN HÀNG (CHỈ KHI CHƯA ĐƯỢC GIAO)

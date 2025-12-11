@@ -9,7 +9,7 @@ import axios from "axios";
 // API Configuration
 const API_BASE_URL = "http://localhost:8080/api";
 
-const axiosPublic = axios.create({
+const axiosPrivate = axios.create({
     baseURL: API_BASE_URL,
     headers: { 'Content-Type': 'application/json' },
     timeout: 10000,
@@ -37,7 +37,7 @@ interface ChiTietDonHangRequest {
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const { selectedItems, selectedTotal, clearCart } = useCart();
-    const { user } = useStore();
+    const { user, token } = useStore(); // ⭐️ Lấy cả token
 
     // Redirect if not logged in
     useEffect(() => {
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
     };
 
     const handlePaymentSuccess = async () => {
-        if (!user) {
+        if (!user || !token) {
             alert("Vui lòng đăng nhập để thanh toán");
             navigate("/login");
             return;
@@ -128,6 +128,9 @@ export default function CheckoutPage() {
         setError(null);
 
         try {
+            // Set token vào header
+            axiosPrivate.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
             // Build full address
             const fullAddress = [
                 formData.address,
@@ -172,8 +175,8 @@ export default function CheckoutPage() {
 
             console.log("Creating order:", donHangRequest);
 
-            // Call API to create order using axios
-            const response = await axiosPublic.post('/test/donHang', donHangRequest);
+            // Call API to create order using axios with auth token
+            const response = await axiosPrivate.post('/donhang', donHangRequest);
 
             const createdOrder = response.data;
             console.log("Order created successfully:", createdOrder);
@@ -229,8 +232,8 @@ export default function CheckoutPage() {
           `
                 };
 
-                // Gọi API gửi email (cần tạo endpoint này ở backend)
-                await axiosPublic.post('/email/send', emailData);
+                // Gọi API gửi email (không cần auth)
+                await axiosPrivate.post(`${API_BASE_URL}/email/send`, emailData);
 
                 console.log("Email notification sent successfully");
             } catch (emailError) {

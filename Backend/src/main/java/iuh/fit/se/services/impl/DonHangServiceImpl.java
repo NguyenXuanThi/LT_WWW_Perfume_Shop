@@ -1,21 +1,29 @@
 package iuh.fit.se.services.impl;
 
+import iuh.fit.se.dtos.requests.chiTietDonHang.ChiTietDonHangRequest;
+import iuh.fit.se.dtos.requests.donHang.DonHangCreateRequest;
 import iuh.fit.se.dtos.requests.donHang.DonHangUpdateRequest;
 import iuh.fit.se.dtos.responses.ChiTietDonHangResponse;
 import iuh.fit.se.dtos.responses.DonHangResponse;
 import iuh.fit.se.entities.ChiTietDonHang;
 import iuh.fit.se.entities.DonHang;
+import iuh.fit.se.entities.NuocHoa;
+import iuh.fit.se.entities.TaiKhoan;
 import iuh.fit.se.enums.TrangThaiDonHang;
 import iuh.fit.se.mappers.ChiTietDonHangMapper;
 import iuh.fit.se.mappers.DonHangMapper;
 import iuh.fit.se.repositories.DonHangRepository;
+import iuh.fit.se.repositories.NuocHoaRepository;
+import iuh.fit.se.repositories.TaiKhoanRepository;
 import iuh.fit.se.services.DonHangService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +35,8 @@ public class DonHangServiceImpl implements DonHangService {
     private final DonHangRepository donHangRepository;
     private final DonHangMapper donHangMapper;
     private final ChiTietDonHangMapper chiTietDonHangMapper;
-
+    private final TaiKhoanRepository taiKhoanRepository;
+    private final NuocHoaRepository nuocHoaRepository;
 
     @Override
     public DonHang findByIdRaw(int id) {
@@ -123,6 +132,63 @@ public class DonHangServiceImpl implements DonHangService {
         donHang.setTrangThaiDonHang(CHUA_DUOC_GIAO);
         donHang.setNgayDat(LocalDate.now());
         return donHangRepository.save(donHang);
+    }
+
+    @Override
+    @Transactional
+    public DonHang createFromRequest(DonHangCreateRequest request, String email) {
+
+        // 1. Lấy tài khoản
+        TaiKhoan taiKhoan = taiKhoanRepository.findByEmail(email)
+                .stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+
+        // 2. Tạo đơn hàng
+        DonHang donHang = DonHang.builder()
+                .ngayDat(request.getNgayDat())
+                .diaChiGiaoHang(request.getDiaChiGiaoHang())
+                .soDienThoai(request.getSoDienThoai())
+                .ghiChu(request.getGhiChu())
+                .phuongThucThanhToan(request.getPhuongThucThanhToan())
+                .thueVAT(request.getThueVAT())
+                .phiVanChuyen(request.getPhiVanChuyen())
+                .thanhTien(request.getThanhTien())
+                .trangThaiDonHang(TrangThaiDonHang.CHUA_DUOC_GIAO)
+                .taiKhoan(taiKhoan)
+                .build();
+
+        // LƯU TRƯỚC để có ID
+        donHang = donHangRepository.save(donHang);
+
+        // 3. Tạo chi tiết đơn hàng
+        Set<ChiTietDonHang> chiTietDonHangs = new HashSet<>();
+
+        for (ChiTietDonHangRequest item : request.getChiTietDonHangs()) {
+            NuocHoa nuocHoa = nuocHoaRepository.findById(item.getNuocHoa())
+                    .orElseThrow(() -> new RuntimeException("Nước hoa không tồn tại"));
+
+            ChiTietDonHang ct = new ChiTietDonHang(
+                    donHang,
+                    nuocHoa,
+                    item.getSoLuong(),
+                    item.getDonGia()
+            );
+
+            chiTietDonHangs.add(ct);
+        }
+
+        // 4. Gán chi tiết
+        donHang.setChiTietDonHangs(chiTietDonHangs);
+
+        // 5. LƯU LẠI (cascade sẽ lưu ChiTietDonHang)
+        donHang = donHangRepository.save(donHang);
+
+        return donHang;
+    }
+
+    @Override
+    public List<DonHang> findByEmail(String email) {
+        return donHangRepository.findByTaiKhoanEmail(email);
     }
 
 }
