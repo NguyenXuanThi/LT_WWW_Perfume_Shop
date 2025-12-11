@@ -1,0 +1,5 @@
+# Copy t? file này r?i b? ?uôi template ?i.
+# ?i?n t? m?c api keys t? profile trong account cloudinary c?a b?n
+cloudinary.cloud-name=
+cloudinary.api-key=
+cloudinary.api-secret=
