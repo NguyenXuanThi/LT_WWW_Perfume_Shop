@@ -82,4 +82,8 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
             "ORDER BY d.trangThaiDonHang")
     List<Object[]> thongKeTheoTrangThaiTrongKhoang(@Param("startDate") LocalDate startDate,
                                                    @Param("endDate") LocalDate endDate);
+
+    //get all orders by account email
+    @Query("SELECT d FROM DonHang d WHERE d.taiKhoan.email = :email ORDER BY d.ngayDat DESC")
+    List<DonHang> findByTaiKhoanEmail(@Param("email") String email);
 }

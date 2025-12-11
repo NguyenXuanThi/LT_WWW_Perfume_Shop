@@ -41,7 +41,7 @@ public class DonHang {
     @ManyToOne
     @JoinColumn(name = "taiKhoanId", nullable = false)
     private TaiKhoan taiKhoan;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "donHang")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "donHang", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private Set<ChiTietDonHang> chiTietDonHangs;
 
