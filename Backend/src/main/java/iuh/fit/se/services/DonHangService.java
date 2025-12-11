@@ -14,4 +14,5 @@ public interface DonHangService {
     List<DonHangResponse> findAll(TrangThaiDonHang trangThai, LocalDate startDate, LocalDate endDate, Integer taiKhoanId);
     DonHangResponse updateTrangThai(DonHangUpdateRequest request);
     void delete(int id);
+    DonHang create(DonHang donHang);
 }

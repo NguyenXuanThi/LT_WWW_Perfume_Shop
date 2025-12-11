@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const HeroBanner = () => {
   return (
     <section className="mt-4 overflow-hidden rounded-3xl bg-slate-900">
@@ -22,9 +24,12 @@ const HeroBanner = () => {
             Hương thơm ngọt ngào, quyến rũ với nốt mật ong, hoa nhài và hoắc
             hương – dành cho những buổi tối khó quên.
           </p>
-          <button className="mt-1 w-fit rounded-full bg-red-600 px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-md hover:bg-red-700">
+          <Link
+            to="/nuoc-hoa/tat-ca"
+            className="mt-1 w-fit rounded-full bg-red-600 px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-md hover:bg-red-700"
+          >
             Mua ngay
-          </button>
+          </Link>
         </div>
       </div>
     </section>

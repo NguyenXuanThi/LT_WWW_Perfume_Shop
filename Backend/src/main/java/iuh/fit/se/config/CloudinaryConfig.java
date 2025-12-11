@@ -10,20 +10,21 @@ import org.springframework.context.annotation.PropertySource;
 import java.util.Map;
 
 @Configuration
-@PropertySource("classpath:cloudinary.properties")
+@PropertySource(value = "classpath:cloudinary.properties", ignoreResourceNotFound = true)
 public class CloudinaryConfig {
-    @Value("${cloudinary.cloud-name}")
+    @Value("${cloudinary.cloud-name:}")
     private String cloudName;
 
-    @Value("${cloudinary.api-key}")
+    @Value("${cloudinary.api-key:}")
     private String apiKey;
 
-    @Value("${cloudinary.api-secret}")
+    @Value("${cloudinary.api-secret:}")
     private String apiSecret;
 
     @Bean
+    @SuppressWarnings("unchecked")
     public Cloudinary cloudinary() {
-        Map<String, String> config = ObjectUtils.asMap(
+        Map<String, Object> config = ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
                 "api_secret", apiSecret,

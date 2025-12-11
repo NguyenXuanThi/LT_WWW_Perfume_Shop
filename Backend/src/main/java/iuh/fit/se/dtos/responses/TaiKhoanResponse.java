@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class TaiKhoanResponse {
+    private Integer id;
     private String hoTen;
     private LocalDate ngaySinh;
     private String soDienThoai;
