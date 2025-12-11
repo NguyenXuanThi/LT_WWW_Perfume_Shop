@@ -44,40 +44,30 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Icon tài khoản + giỏ */}
-            <div className="flex items-center gap-3 text-xs">
-              {/* Link tới trang My Account */}
-              {user ? (
-                  <Link
-                      to="/account"
-                      className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
-                  >
-                    Tài khoản của tôi
-                  </Link>
-              ) : (
-                  <Link
-                      to="/login"
-                      className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
-                  >
-                    Đăng nhập
-                  </Link>
-              )}
-              {user && user.vaiTro === "Admin" && (
-                  <>
-                    <Link
-                        to="/admin/manage"
-                        className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
-                    >
-                      Quản lý người dùng
-                    </Link>
-                    <Link
-                        to="/admin/dashboard"
-                        className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
-                    >
-                      Quản lý
-                    </Link>
-                  </>
-              )}
+          {/* Icon tài khoản + giỏ */}
+          <div className="flex items-center gap-3 text-xs">
+            {/* Link tới trang My Account */}
+            {
+              user ?
+                <Link
+                  to="/account"
+                  className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
+                >
+                  Tài khoản của tôi
+                </Link> :
+                <Link to="/login" className="hidden text-slate-700 hover:text-red-600 sm:inline-flex">
+                  Đăng nhập
+                </Link>
+            }
+            {
+              (user && user.vaiTro === "Admin" ) ?
+                <Link
+                  to="/admin/dashboard"
+                  className="hidden text-slate-700 hover:text-red-600 sm:inline-flex"
+                >
+                  Quản lý
+                </Link> : ""
+            }
 
               {/* Cart Icon with hover preview */}
               <CartIcon />

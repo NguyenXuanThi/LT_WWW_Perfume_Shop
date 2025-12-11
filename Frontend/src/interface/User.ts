@@ -16,7 +16,8 @@ export interface NewUser {
     ngaySinh: string;
     soDienThoai: string;
     email: string;
-    password: string;
+    newPassword: string;
+    confirmPassword: string;
     diaChi: string;
 }
 
@@ -25,7 +26,8 @@ export interface UserError {
     ngaySinh: string;
     soDienThoai: string;
     email: string;
-    password: string;
+    newPassword: string;
+    confirmPassword: string;
     diaChi: string;
 }
 
