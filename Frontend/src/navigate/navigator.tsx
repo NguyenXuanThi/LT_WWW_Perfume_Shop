@@ -14,13 +14,18 @@ import AdminUserManagement from "@/page/admin/AdminUserManagement";
 import AccountAuthenticate from "@/page/account/AccountAuthenticate";
 import AdminStatistics from "@/page/admin/AdminStatistics";
 import AdminCategoryList from "@/page/admin/AdminCategoryList";
-
+import CartPage from "@/page/CartPage/CartPage";
+import CheckoutPage from "@/page/CartPage/CheckoutPage";
+import OrderSuccessPage from "@/page/CartPage/OrderSuccessPage.tsx";
 const Navigator = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/nuochoa/:gender" element={<ProductListPage />} />
       <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-success" element={<OrderSuccessPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
 

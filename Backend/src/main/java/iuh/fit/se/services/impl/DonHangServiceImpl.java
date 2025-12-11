@@ -19,12 +19,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static iuh.fit.se.enums.TrangThaiDonHang.CHUA_DUOC_GIAO;
+
 @Service
 @RequiredArgsConstructor
 public class DonHangServiceImpl implements DonHangService {
     private final DonHangRepository donHangRepository;
     private final DonHangMapper donHangMapper;
     private final ChiTietDonHangMapper chiTietDonHangMapper;
+
 
     @Override
     public DonHang findByIdRaw(int id) {
@@ -114,4 +117,12 @@ public class DonHangServiceImpl implements DonHangService {
 
         donHangRepository.deleteById(id);
     }
+
+    @Override
+    public DonHang create(DonHang donHang) {
+        donHang.setTrangThaiDonHang(CHUA_DUOC_GIAO);
+        donHang.setNgayDat(LocalDate.now());
+        return donHangRepository.save(donHang);
+    }
+
 }

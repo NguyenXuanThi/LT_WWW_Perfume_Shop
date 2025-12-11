@@ -188,7 +188,7 @@ CartIcon.tsx:
 
 Icon giỏ hàng trên Header, có badge số lượng.
 
-CartSummary.tsx:
+CartContext.tsx:
 
 Tổng quan giỏ: danh sách item + tổng tiền.
 

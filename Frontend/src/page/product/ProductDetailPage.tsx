@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import type { PerfumeDetail } from "../../interface/Product";
@@ -8,6 +8,7 @@ import {
   formatGender,
   getFinalPrice,
 } from "../../interface/Product";
+import { useCart } from "../../components/cart/CartContext.tsx";
 
 // API Response Type
 interface ApiChiTietNuocHoa {
@@ -63,7 +64,9 @@ function mapApiToDetail(api: ApiNuocHoaDetailResponse): PerfumeDetail {
 
 const ProductDetailPage = () => {
   const params = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const productId = Number(params.id);
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<PerfumeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +74,8 @@ const ProductDetailPage = () => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
+
+  const [showAddedNotification, setShowAddedNotification] = useState(false);
 
   // Fetch product detail from API
   useEffect(() => {
@@ -105,6 +110,32 @@ const ProductDetailPage = () => {
   const handleQuantityChange = (value: number) => {
     if (Number.isNaN(value) || value <= 0) return;
     setQuantity(value);
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    // const finalPrice = getFinalPrice(product);
+
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        price: product.basePrice,
+        discountPercent: product.discountPercent,
+        image: product.mainImageFile || "",
+        volume: product.volume,
+      });
+    }
+
+    setShowAddedNotification(true);
+    setTimeout(() => setShowAddedNotification(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    setTimeout(() => navigate("/cart"), 300);
   };
 
   // Show loading state
@@ -333,10 +364,16 @@ const ProductDetailPage = () => {
               </div>
 
               <div className="space-y-2">
-                <button className="flex w-full items-center justify-center rounded-full bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow hover:bg-red-700">
+                <button
+                    onClick={handleAddToCart}
+                    className="flex w-full items-center justify-center rounded-full bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow hover:bg-red-700"
+                >
                   Thêm vào giỏ hàng
                 </button>
-                <button className="flex w-full items-center justify-center rounded-full border border-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-600 hover:bg-red-50">
+                <button
+                    onClick={handleBuyNow}
+                    className="flex w-full items-center justify-center rounded-full border border-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-600 hover:bg-red-50"
+                >
                   Mua ngay
                 </button>
               </div>
@@ -349,6 +386,13 @@ const ProductDetailPage = () => {
             </aside>
           </section>
         </main>
+
+        {/* Notification khi thêm vào giỏ */}
+        {showAddedNotification && (
+            <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-lg">
+              ✓ Đã thêm vào giỏ hàng
+            </div>
+        )}
 
         <Footer />
       </div>
