@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -66,8 +67,9 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         Validator validator = factory.getValidator();
         factory.close();
         Set<ConstraintViolation<TaiKhoanCreateRequest>> violations = validator.validate(request);
-        if (!violations.isEmpty()) {
-            throw new PostException(violations);
+        boolean matchPassword = Objects.equals(request.getNewPassword(), request.getConfirmPassword());
+        if (!violations.isEmpty() || !matchPassword) {
+            throw new PostException(violations, (!matchPassword)? Map.of("confirmPassword", "password xác nhận không trùng khớp"): null);
         }
 
         TaiKhoan taiKhoan = taiKhoanMapper.toTaiKhoan(request);
