@@ -391,7 +391,7 @@ const ProductDetailPage = () => {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Giá bán
               </p>
-              <div className="mt-1 flex items-baseline gap-2">
+              <div className="mt-1 flex items-baseline gap-2 justify-center">
                 <span className="text-xl font-semibold text-red-600">
                   {finalPrice.toLocaleString("vi-VN")}₫
                 </span>
@@ -420,7 +420,7 @@ const ProductDetailPage = () => {
               </p>
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1">
                 <button
-                  className="h-6 w-6 rounded-full text-center text-base text-slate-600 hover:bg-slate-100"
+                  className="rounded-full text-center text-base text-slate-600 hover:bg-slate-100" style={{padding: "0.1rem 1rem"}}
                   onClick={() => handleQuantityChange(quantity - 1)}
                 >
                   -
@@ -433,7 +433,7 @@ const ProductDetailPage = () => {
                   className="w-10 border-none bg-transparent text-center text-sm outline-none"
                 />
                 <button
-                  className="h-6 w-6 rounded-full text-center text-base text-slate-600 hover:bg-slate-100"
+                  className="rounded-full text-center text-base text-slate-600 hover:bg-slate-100" style={{padding: "0.1rem 1rem"}}
                   onClick={() => handleQuantityChange(quantity + 1)}
                 >
                   +

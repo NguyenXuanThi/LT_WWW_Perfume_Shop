@@ -89,6 +89,15 @@ const Header = () => {
           <Link to="/" className="text-red-600">
             Trang chủ
           </Link>
+          <Link to="/nuoc-hoa/tat-ca?category=new-arrivals" className="hover:text-red-600">
+            Hàng mới về
+          </Link>
+          <Link to="/nuoc-hoa/tat-ca?category=best-sellers" className="hover:text-red-600">
+            Bán chạy nhất
+          </Link>
+          <Link to="/nuoc-hoa/tat-ca?category=on-sale" className="hover:text-red-600">
+            Đang giảm giá
+          </Link>
           <Link to="/nuoc-hoa/nam" className="hover:text-red-600">
             Nước hoa nam
           </Link>
@@ -98,9 +107,6 @@ const Header = () => {
           <Link to="/nuoc-hoa/unisex" className="hover:text-red-600">
             Nước hoa unisex
           </Link>
-          <button className="hover:text-red-600">Nước hoa Mini</button>
-          <button className="hover:text-red-600">Giftset</button>
-          <button className="hover:text-red-600">Thương hiệu</button>
         </nav>
       </div>
     </header>

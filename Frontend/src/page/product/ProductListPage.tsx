@@ -17,6 +17,8 @@ const getAllPerfumes = async (): Promise<PerfumeDetail[]> => {
 
 type SortOption = "BEST_SELLING" | "PRICE_ASC" | "PRICE_DESC" | "NEWEST";
 
+type CategoryFilter = "ALL" | "NEW_ARRIVALS" | "BEST_SELLERS" | "ON_SALE";
+
 type PriceFilter =
   | "ALL"
   | "UNDER_2M"
@@ -91,13 +93,14 @@ const ProductListPage = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceFilter, setPriceFilter] = useState<PriceFilter>("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("BEST_SELLING");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL");
 
   // API integration
   const [allProducts, setAllProducts] = useState<PerfumeDetail[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle URL params for brand and reset filters when gender changes
+  // Handle URL params for brand and category filters, reset when gender changes
   useEffect(() => {
     const brandParam = searchParams.get("brand");
     if (brandParam) {
@@ -105,6 +108,18 @@ const ProductListPage = () => {
     } else {
       setSelectedBrands([]);
     }
+    
+    const categoryParam = searchParams.get("category");
+    if (categoryParam === "new-arrivals") {
+      setCategoryFilter("NEW_ARRIVALS");
+    } else if (categoryParam === "best-sellers") {
+      setCategoryFilter("BEST_SELLERS");
+    } else if (categoryParam === "on-sale") {
+      setCategoryFilter("ON_SALE");
+    } else {
+      setCategoryFilter("ALL");
+    }
+    
     setPriceFilter("ALL");
   }, [genderParam, searchParams]);
 
@@ -141,6 +156,19 @@ const ProductListPage = () => {
 
   const filteredProducts = useMemo(() => {
     let result = [...genderFilteredProducts];
+
+    // Apply category filter first
+    if (categoryFilter === "NEW_ARRIVALS") {
+      // Get the latest year from all products
+      const latestYear = Math.max(...result.map(p => p.launchYear ?? 0));
+      result = result.filter(p => p.launchYear === latestYear);
+    } else if (categoryFilter === "BEST_SELLERS") {
+      // Filter products with high ratings (4.0+)
+      result = result.filter(p => (p.averageRating ?? 0) >= 4.0);
+    } else if (categoryFilter === "ON_SALE") {
+      // Filter products with discounts
+      result = result.filter(p => p.discountPercent > 0);
+    }
 
     if (selectedBrands.length > 0) {
       result = result.filter((p) => selectedBrands.includes(p.brand));
@@ -188,6 +216,32 @@ const ProductListPage = () => {
 
   const totalCount = filteredProducts.length;
 
+  // Get display title and description based on category filter
+  const getPageInfo = () => {
+    if (categoryFilter === "NEW_ARRIVALS") {
+      return {
+        title: "Hàng mới về",
+        breadcrumb: "Hàng mới về",
+        description: "Những mùi hương vừa cập bến cửa hàng. Khám phá các sản phẩm mới nhất từ các thương hiệu hàng đầu."
+      };
+    } else if (categoryFilter === "BEST_SELLERS") {
+      return {
+        title: "Bán chạy nhất",
+        breadcrumb: "Bán chạy nhất",
+        description: "Top nước hoa được yêu thích nhất. Những mùi hương được đánh giá cao bởi khách hàng."
+      };
+    } else if (categoryFilter === "ON_SALE") {
+      return {
+        title: "Đang giảm giá",
+        breadcrumb: "Đang giảm giá",
+        description: "Ưu đãi hấp dẫn không thể bỏ lỡ. Săn ngay các sản phẩm đang có chương trình khuyến mãi."
+      };
+    }
+    return genderConfig;
+  };
+
+  const pageInfo = getPageInfo();
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <Header />
@@ -203,15 +257,15 @@ const ProductListPage = () => {
           </Link>
           <span className="mx-1">/</span>
           <span className="font-semibold text-slate-800">
-            {genderConfig.breadcrumb}
+            {pageInfo.breadcrumb}
           </span>
         </nav>
 
-        <section className="mb-6 max-w-3xl text-sm text-slate-600">
+        <section className="mb-6 text-sm text-slate-600">
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
-            {genderConfig.title}
+            {pageInfo.title}
           </h1>
-          <p>{genderConfig.description}</p>
+          <p>{pageInfo.description}</p>
         </section>
 
         <section className="grid gap-6 md:grid-cols-[260px,1fr]">
@@ -329,7 +383,7 @@ const ProductListPage = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">
-                      {genderConfig.title}
+                      {pageInfo.title}
                     </h2>
                     <p className="text-xs text-slate-500">
                       {totalCount} kết quả
