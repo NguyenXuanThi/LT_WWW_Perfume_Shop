@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthService from "@/services/auth"
 import { Link } from "react-router-dom"
+import close from "@/assets/close.png"
 
 // Định nghĩa màu sắc theo mẫu hình ảnh
 const COLORS = {
@@ -76,6 +77,12 @@ const LoginPage = () => {
     >
       {/* Khối đăng nhập chính */}
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
+        <Link
+          to="/"
+          className="h-5 w-5 block"
+        >
+          <img src={close} className="h-full w-full" />
+        </Link>
 
         <div className="mb-8 flex flex-col items-center">
           <LockIcon color={COLORS.PRIMARY_BLUE} />

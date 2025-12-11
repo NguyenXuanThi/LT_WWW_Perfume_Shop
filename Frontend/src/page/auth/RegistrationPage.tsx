@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthService from "@/services/auth"
 import type { NewUser, UserError } from '@/interface/User';
+import close from "@/assets/close.png"
 
 // Định nghĩa màu sắc theo mẫu hình ảnh
 const COLORS = {
@@ -199,6 +200,13 @@ const RegistrationPage = () => {
         style={{ backgroundColor: COLORS.BG_MINT }}
     >
       <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-xl">
+        <Link
+          to="/"
+          className="h-5 w-5 block"
+        >
+          <img src={close} className="h-full w-full" />
+        </Link>
+
         <div className="mb-8 flex flex-col items-center">
           <UserIcon color={COLORS.PRIMARY_BLUE} />
           <h1 

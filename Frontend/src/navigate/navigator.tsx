@@ -12,6 +12,10 @@ import AdminUserManagement from "@/page/admin/AdminUserManagement";
 import CartPage from "@/page/CartPage/CartPage.tsx";
 import CheckoutPage from "@/page/CartPage/CheckoutPage.tsx";
 import OrderSuccessPage from "@/page/CartPage/OrderSuccessPage.tsx";
+import AdminProductList from "@/page/admin/AdminProductList";
+import AdminCategoryList from "@/page/admin/AdminCategoryList";
+import AdminOrderList from "@/page/admin/AdminOrderList";
+import AdminStatistics from "@/page/admin/AdminStatistics";
 const Navigator = () => {
   return (
     <Routes>
@@ -27,6 +31,10 @@ const Navigator = () => {
       <Route element={<AdminAuthenticate/>}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/manage" element={<AdminUserManagement />} />
+        <Route path="/admin/products" element={<AdminProductList />} />
+        <Route path="/admin/categories" element={<AdminCategoryList />} />
+        <Route path="/admin/orders" element={<AdminOrderList />} />
+        <Route path="/admin/statistics/:type" element={<AdminStatistics />} />
       </Route>
       <Route element={<AccountAuthenticate/>}>
         <Route path="/account" element={<AccountPage />} />

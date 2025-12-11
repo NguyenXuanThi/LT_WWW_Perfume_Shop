@@ -473,7 +473,7 @@ export default function CheckoutPage() {
                                 return (
                                     <div key={item.id} className="flex gap-3 text-sm">
                                         <img
-                                            src={`/images/${item.image}`}
+                                            src={`${item.image}`}
                                             alt={item.name}
                                             className="h-16 w-16 rounded object-cover"
                                         />
