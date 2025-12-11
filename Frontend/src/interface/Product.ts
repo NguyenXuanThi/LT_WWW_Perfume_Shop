@@ -25,7 +25,7 @@ export interface PerfumeBase {
   mainImageFile?: string | null;
   volume: number;
   gender: Gender;
-  type: PerfumeTypeInfo;
+  type: number | PerfumeTypeInfo;
 }
 
 export interface PerfumeDetail extends PerfumeBase {
@@ -58,5 +58,13 @@ export function formatGender(g: Gender): string {
 
 export function buildImageUrl(fileName?: string | null): string {
   if (!fileName) return "/images/placeholder-perfume.jpg";
+  
+  // If it's already a full URL (Cloudinary), return as-is
+  if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
+    return fileName;
+  }
+  
+  // Otherwise, assume it's a local path
   return `/images/${fileName}`;
 }
+
