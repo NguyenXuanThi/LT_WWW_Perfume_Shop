@@ -16,6 +16,7 @@ import AdminProductList from "@/page/admin/AdminProductList";
 import AdminCategoryList from "@/page/admin/AdminCategoryList";
 import AdminOrderList from "@/page/admin/AdminOrderList";
 import AdminStatistics from "@/page/admin/AdminStatistics";
+import AdminProductEdit from "@/page/admin/AdminProductEdit";
 const Navigator = () => {
   return (
     <Routes>
@@ -35,6 +36,8 @@ const Navigator = () => {
         <Route path="/admin/categories" element={<AdminCategoryList />} />
         <Route path="/admin/orders" element={<AdminOrderList />} />
         <Route path="/admin/statistics/:type" element={<AdminStatistics />} />
+        <Route path="/admin/products/:id" element={<AdminProductEdit />} />
+        <Route path="/admin/products/edit/:id" element={<AdminProductEdit />} />
       </Route>
       <Route element={<AccountAuthenticate/>}>
         <Route path="/account" element={<AccountPage />} />
